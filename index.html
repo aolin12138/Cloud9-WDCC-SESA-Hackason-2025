@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Leaflet Current Location</title>
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-XQoYMqMTK8LpLeA2/3fwhbPxxkM+v/pBMKj+v4bVkMM="
+        crossorigin=""
+    />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: calc(100% - 60px); /* Adjust for header height */
+            width: 100%;
+        }
+        h1 {
+            margin: 0;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Leaflet Map with Current Location</h1>
+    <div id="map"></div>
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-o9N1jG30sBaxi0zMnH2bJ1hNqR8P2vZcFf2aVw5uXiw="
+        crossorigin=""
+    ></script>
+
+    <script>
+        if (!navigator.geolocation) {
+            alert("Geolocation not supported");
+        } else {
+            navigator.geolocation.getCurrentPosition(
+                ({ coords }) => {
+                    const { latitude, longitude } = coords;
+                    const map = L.map("map").setView([latitude, longitude], 15);
+                    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                        attribution: "&copy; OpenStreetMap contributors"
+                    }).addTo(map);
+                    
+                    // Add a marker for current location
+                    L.marker([latitude, longitude]).addTo(map);
+                },
+                (error) => {
+                    alert("Error getting location: " + error.message);
+                }
+            );
+        }
+    </script>
+</body>
+</html>
