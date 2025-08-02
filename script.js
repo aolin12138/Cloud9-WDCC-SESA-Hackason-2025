@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const landingPage = document.getElementById("landingPage");
     const landingStatus = document.getElementById("landingStatus");
     const mainApp = document.getElementById("mainApp");
-    const statusMessage = document.getElementById("statusMessage");
 
     // Map and user location variables
     let map = null;
@@ -53,19 +52,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log("🗺️ Initializing map...");
 
-        // Create map with mobile-friendly settings
+        // Create map with improved settings for stability
         map = L.map("map", {
             center: [aucklandLat, aucklandLng],
             zoom: 12, // Zoom out slightly to show more areas
             zoomControl: true,
             touchZoom: true,
-            doubleClickZoom: true,
+            doubleClickZoom: false, // Disable double-click zoom to prevent accidental multiple zooms
             scrollWheelZoom: true,
             boxZoom: false,
             keyboard: true,
             dragging: true,
             tap: true,
             tapTolerance: 15,
+            zoomSnap: 1, // Force integer zoom levels for stability
+            zoomDelta: 1, // Single zoom level per action
+            wheelPxPerZoomLevel: 120, // Reduce scroll sensitivity
+            inertia: false, // Disable momentum scrolling for more predictable behavior
         });
 
         console.log("📍 Map object created:", map);
@@ -276,8 +279,8 @@ document.addEventListener("DOMContentLoaded", function () {
             html: `<div class="photo-marker" data-photo="${photo.id}">📸</div>`,
             className: "custom-photo-marker",
             iconSize: [30, 30],
-            iconAnchor: [15, 30],
-            popupAnchor: [0, -30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -15],
         });
 
         // Create marker with custom icon
@@ -329,8 +332,8 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>`,
             className: "custom-cluster-marker",
             iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20],
         });
 
         // Create marker with custom icon
@@ -442,8 +445,8 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>`,
             className: "custom-cluster-marker",
             iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20],
         });
 
         // Create marker with custom icon
@@ -724,8 +727,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Hide form and show success message
         hidePhotoDetails();
-        statusMessage.innerHTML = "✨ Memory added successfully!";
-        statusMessage.style.color = "#27ae60";
 
         // Refresh timeline view if active
         if (currentView === "timeline") {
@@ -843,22 +844,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Invalidate map size to ensure proper rendering
                 if (map) {
                     map.invalidateSize();
-                    // Center map on user location with animation
+                    // Center map on user location with gentle animation
                     map.setView([userLocation.latitude, userLocation.longitude], 14, {
-                        animate: true,
-                        duration: 1.5,
+                        animate: false, // Disable animation for initial load to prevent conflicts
                     });
 
-                    // Add user location marker
-                    addUserLocationMarker();
+                    // Add user location marker after map is stable
+                    setTimeout(() => {
+                        addUserLocationMarker();
+                    }, 100);
                 }
 
                 // Filter nearby photos
                 const nearbyPhotos = filterNearbyPhotos(userLocation);
 
-                statusMessage.innerHTML = `✨ Found your location! ${nearbyPhotos.length} memories nearby.`;
-                statusMessage.style.color = "#27ae60";
-                findMeBtn.textContent = "📍 FIND ME";
+                findMeBtn.textContent = "📍";
                 findMeBtn.disabled = false;
             }, 200);
         }, 1000);
@@ -870,9 +870,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function addUserLocationMarker() {
         if (!userLocation || !map) return;
 
+        console.log("📍 Adding user marker at:", userLocation.latitude, userLocation.longitude);
+
         // Remove existing user marker if any
         if (window.userMarker) {
             map.removeLayer(window.userMarker);
+            window.userMarker = null;
         }
 
         // Create animated user icon with accuracy info
@@ -886,10 +889,10 @@ document.addEventListener("DOMContentLoaded", function () {
             html: `<div class="user-marker">👤${accuracyText}</div>`,
             className: "custom-user-marker",
             iconSize: [40, 40],
-            iconAnchor: [20, 40],
+            iconAnchor: [20, 20],
         });
 
-        // Add marker with entrance animation
+        // Add marker directly without complex animations that might interfere
         window.userMarker = L.marker(
             [userLocation.latitude, userLocation.longitude],
             {
@@ -901,21 +904,16 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         ).addTo(map);
 
-        // Animate marker entrance
-        setTimeout(() => {
-            const markerElement = window.userMarker.getElement();
-            if (markerElement) {
-                markerElement.style.opacity = "0";
-                markerElement.style.transform = "scale(0)";
-                markerElement.style.transition =
-                    "all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+        // Simple fade-in animation
+        const markerElement = window.userMarker.getElement();
+        if (markerElement) {
+            markerElement.style.opacity = "0";
+            markerElement.style.transition = "opacity 0.3s ease";
 
-                setTimeout(() => {
-                    markerElement.style.opacity = "1";
-                    markerElement.style.transform = "scale(1)";
-                }, 100);
-            }
-        }, 300);
+            setTimeout(() => {
+                markerElement.style.opacity = "1";
+            }, 50);
+        }
     }
 
     /**
@@ -965,13 +963,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Set error message in main app
-        statusMessage.innerHTML = errorMessage;
-        statusMessage.style.color = "#e74c3c";
-        findMeBtn.textContent = "📍 FIND ME";
+        findMeBtn.textContent = "📍";
         findMeBtn.disabled = false;
 
         setTimeout(() => {
-            statusMessage.innerHTML += "<br/>🇳🇿 Showing Auckland memories.";
         }, 1000);
     }
 
@@ -1013,9 +1008,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("🔍 Getting precise location for Find Me...");
 
         // Update main app status
-        statusMessage.innerHTML = "📍 Finding your precise location...";
-        statusMessage.className = "status-message loading";
-        findMeBtn.textContent = "📍 SEARCHING...";
+        findMeBtn.textContent = "⌛";
         findMeBtn.disabled = true;
 
         if (!navigator.geolocation) {
@@ -1048,15 +1041,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 console.log(`📍 Location accuracy: ${position.coords.accuracy} meters`);
 
-                // Animate map to user location with higher zoom
+                // Simply pan to user location without zoom change to avoid jumping
                 if (map) {
-                    map.setView([userLocation.latitude, userLocation.longitude], 17, {
+                    // Use panTo instead of setView to avoid zoom conflicts
+                    map.panTo([userLocation.latitude, userLocation.longitude], {
                         animate: true,
-                        duration: 2.0,
+                        duration: 1.0,
+                        easeLinearity: 0.25,
                     });
 
-                    // Add/update user marker
-                    addUserLocationMarker();
+                    // Add/update user marker after a short delay to ensure map has settled
+                    setTimeout(() => {
+                        addUserLocationMarker();
+                    }, 500);
 
                     // Update status with accuracy info
                     const nearbyPhotos = filterNearbyPhotos(userLocation);
@@ -1065,19 +1062,15 @@ document.addEventListener("DOMContentLoaded", function () {
                             ? `(±${Math.round(position.coords.accuracy)}m accuracy)`
                             : "";
 
-                    statusMessage.innerHTML = `✨ Found your precise location! ${accuracyText}<br/>${nearbyPhotos.length} memories nearby.`;
-                    statusMessage.style.color = "#27ae60";
                 }
 
-                findMeBtn.textContent = "📍 FIND ME";
+                findMeBtn.textContent = "📍";
                 findMeBtn.disabled = false;
             },
             (error) => {
                 console.error("❌ Find Me location error:", error);
-                statusMessage.innerHTML =
-                    "❌ Could not get precise location. Try again.";
-                statusMessage.style.color = "#e74c3c";
-                findMeBtn.textContent = "📍 FIND ME";
+                "❌ Could not get precise location. Try again.";
+                findMeBtn.textContent = "📍";
                 findMeBtn.disabled = false;
             },
             options
@@ -1156,8 +1149,21 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
             if (map && currentView === "map") {
                 map.invalidateSize();
+                // Force map to fill container properly
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 100);
             }
         }, 500);
+    });
+
+    // Handle window resize
+    window.addEventListener("resize", function () {
+        if (map) {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100);
+        }
     });
 
     // ==============================================================
@@ -1170,9 +1176,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize clustered photo markers
     addClusteredPhotoMarkers();
 
-    // Set initial status
-    statusMessage.innerHTML = "Click on the map to add your memories! 📍";
-    statusMessage.style.color = "#7f8c8d";
+    // Force map to fill properly after initialization
+    setTimeout(() => {
+        if (map) {
+            map.invalidateSize();
+        }
+    }, 1000);
 
     // Add some mobile-specific touches
     if ("ontouchstart" in window) {
