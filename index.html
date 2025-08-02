@@ -1,90 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Memory Map - Interactive Nostalgia</title>
 
     <!-- Google Fonts - Press Start 2P for that retro pixel look -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 
     <!-- Leaflet CSS for interactive maps -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <!-- Link to our CSS file -->
     <link rel="stylesheet" href="styles.css" />
-  </head>
+</head>
 
-  <body>
+<body>
     <!-- Landing page overlay -->
     <div id="landingPage" class="landing-page">
-      <div class="landing-content">
-        <h1 class="landing-title">📸 MOMENTO</h1>
-        <p class="landing-subtitle">Discovering your location...</p>
-        <div class="loading-spinner"></div>
-        <p class="landing-status" id="landingStatus">
-          📍 Finding your location...
-        </p>
-      </div>
+        <div class="landing-content">
+            <h1 class="landing-title">📸 MOMENTO</h1>
+            <p class="landing-subtitle">Discovering your location...</p>
+            <div class="loading-spinner"></div>
+            <p class="landing-status" id="landingStatus">
+                📍 Finding your location...
+            </p>
+        </div>
     </div>
 
     <!-- Mobile-first app container -->
     <div class="app-container hidden" id="mainApp">
-      <!-- Compact header for mobile -->
-      <header class="header">
-        <h1 class="title">📸 MOMENTO</h1>
-        <p class="subtitle">Discover memories around you...</p>
 
-        <!-- Mobile-friendly controls -->
-        <div class="map-controls">
-          <button id="findMeBtn" class="control-btn primary">📍 FIND ME</button>
-          <button id="toggleViewBtn" class="control-btn secondary">
-            🗺️ MAP VIEW
-          </button>
+        <!-- Left sidebar -->
+        <aside class="left-sidebar" id="sidebar">
+            <!-- Sidebar expand button at top -->
+            <button class="sidebar-expand" id="sidebarToggle" title="Expand sidebar">
+                ☰
+            </button>
+
+            <!-- Simple logo -->
+            <div class="sidebar-logo">
+                <div class="logo-icon">📷</div>
+            </div>
+
+            <!-- Text that shows when expanded -->
+            <div class="sidebar-text">Your Stories</div>
+        </aside>
+
+        <!-- Find Me button - bottom right floating -->
+        <button class="find-me-floating" id="findMeBtn">
+            📍
+        </button>
+
+        <!-- Full-screen map container -->
+        <div class="fullscreen-map-container">
+            <div id="map" class="interactive-map">
+                <!-- Leaflet map will be initialized here -->
+            </div>
+
+            <!-- Floating info panel for mobile -->
+            <div id="infoPanel" class="info-panel hidden">
+                <div class="panel-header">
+                    <span class="panel-title">Memory Details</span>
+                    <button id="closePanelBtn" class="close-btn">✕</button>
+                </div>
+                <div id="panelContent" class="panel-content">
+                    <!-- Memory details will be populated here -->
+                </div>
+            </div>
         </div>
 
-        <!-- Status message -->
-        <div id="statusMessage" class="status-message"></div>
-      </header>
-
-      <!-- Main map container -->
-      <div class="map-container">
-        <div id="map" class="interactive-map">
-          <!-- Leaflet map will be initialized here -->
+        <!-- Alternative timeline view (hidden by default) -->
+        <div id="timelineView" class="timeline-container hidden">
+            <div id="timeline" class="timeline">
+                <!-- Polaroid cards will be displayed here when in timeline mode -->
+            </div>
         </div>
 
-        <!-- Floating info panel for mobile -->
-        <div id="infoPanel" class="info-panel hidden">
-          <div class="panel-header">
-            <span class="panel-title">Memory Details</span>
-            <button id="closePanelBtn" class="close-btn">✕</button>
-          </div>
-          <div id="panelContent" class="panel-content">
-            <!-- Memory details will be populated here -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Alternative timeline view (hidden by default) -->
-      <div id="timelineView" class="timeline-container hidden">
-        <div id="timeline" class="timeline">
-          <!-- Polaroid cards will be displayed here when in timeline mode -->
-        </div>
-      </div>
-
-      <!-- Mobile-friendly footer -->
-      <footer class="footer">
-        <p>🕹️ Touch to explore • Swipe to navigate</p>
-      </footer>
     </div>
 
     <!-- Leaflet JavaScript -->
@@ -92,5 +85,6 @@
 
     <!-- Link to our JavaScript file -->
     <script src="script.js"></script>
-  </body>
+</body>
+
 </html>
