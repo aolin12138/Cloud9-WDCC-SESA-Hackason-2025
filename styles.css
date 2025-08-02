@@ -1,0 +1,506 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styling with retro gradient background - mobile optimized */
+body {
+    font-family: 'Press Start 2P', cursive;
+    background: linear-gradient(135deg, #ff6b9d, #4ecdc4, #ffe66d);
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+    min-height: 100vh;
+    color: #2c3e50;
+    overflow-x: hidden;
+    touch-action: manipulation; /* Optimizes touch gestures */
+}
+
+/* Animated gradient background for that 90s vibe */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Main app container - mobile first */
+.app-container {
+    max-width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Compact header for mobile */
+.header {
+    text-align: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid #ff6b9d;
+    z-index: 1000;
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: 16px;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 0px #ffe66d;
+    letter-spacing: 1px;
+}
+
+.subtitle {
+    font-size: 8px;
+    color: #7f8c8d;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+/* Mobile-friendly control buttons */
+.map-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-width: 100px;
+    touch-action: manipulation;
+}
+
+.control-btn.primary {
+    background: linear-gradient(45deg, #4ecdc4, #44a08d);
+    color: white;
+    box-shadow: 0 4px 15px rgba(68, 160, 141, 0.4);
+}
+
+.control-btn.secondary {
+    background: linear-gradient(45deg, #ff6b9d, #ff5582);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+}
+
+.control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(68, 160, 141, 0.6);
+}
+
+.control-btn:active {
+    transform: translateY(0px);
+}
+
+/* Status message styling */
+.status-message {
+    margin-top: 10px;
+    font-size: 7px;
+    color: #e74c3c;
+    min-height: 15px;
+    letter-spacing: 1px;
+}
+
+/* Map container - takes most of the screen */
+.map-container {
+    flex: 1;
+    position: relative;
+    margin: 0;
+    height: calc(100vh - 160px); /* Adjust for header and footer */
+    overflow: hidden;
+}
+
+/* Interactive map styling */
+.interactive-map {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    z-index: 1;
+}
+
+/* Custom map marker styling */
+.memory-marker {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, #ff6b9d, #4ecdc4);
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    animation: pulse 2s infinite;
+    cursor: pointer;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Floating info panel for mobile */
+.info-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border-top: 3px solid #ff6b9d;
+    z-index: 2000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.info-panel:not(.hidden) {
+    transform: translateY(0);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 2px solid #ffe66d;
+}
+
+.panel-title {
+    font-size: 10px;
+    color: #2c3e50;
+    letter-spacing: 1px;
+}
+
+.close-btn {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+.panel-content {
+    padding: 20px;
+}
+
+/* Mobile Polaroid card in panel */
+.panel-polaroid {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ecf0f1;
+    text-align: center;
+}
+
+.panel-polaroid img {
+    width: 100%;
+    max-width: 200px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+    filter: sepia(20%) saturate(0.8) contrast(1.1);
+    margin-bottom: 15px;
+}
+
+.panel-metadata {
+    font-size: 8px;
+    color: #2c3e50;
+    letter-spacing: 1px;
+    line-height: 1.4;
+}
+
+.panel-date {
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 5px;
+}
+
+.panel-location {
+    color: #7f8c8d;
+    font-size: 7px;
+}
+
+/* Timeline view (alternative to map) */
+.timeline-container {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 20px 0;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 10px;
+    border-radius: 15px;
+    box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.timeline-container.hidden {
+    display: none;
+}
+
+/* Timeline styling - horizontal layout */
+.timeline {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    min-width: fit-content;
+    align-items: flex-start;
+}
+
+/* Placeholder message when no photos are loaded */
+.placeholder-message {
+    font-size: 9px;
+    color: #7f8c8d;
+    text-align: center;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    border: 2px dashed #bdc3c7;
+    margin: 20px;
+    letter-spacing: 1px;
+}
+
+/* Polaroid card styling - optimized for mobile */
+.polaroid-card {
+    flex-shrink: 0;
+    width: 160px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    transform: rotate(-2deg);
+    transition: all 0.3s ease;
+    position: relative;
+    border: 1px solid #ecf0f1;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.polaroid-card:nth-child(even) {
+    transform: rotate(1.5deg);
+}
+
+.polaroid-card:nth-child(3n) {
+    transform: rotate(-1deg);
+}
+
+.polaroid-card:hover {
+    transform: rotate(0deg) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
+
+.photo-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.polaroid-photo {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+    filter: sepia(20%) saturate(0.8) contrast(1.1);
+    transition: filter 0.3s ease;
+}
+
+/* VHS effects */
+.polaroid-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.1) 2px,
+        rgba(255, 255, 255, 0.1) 4px
+    );
+    pointer-events: none;
+    opacity: 0.3;
+    animation: scanlines 0.1s linear infinite;
+    border-radius: 8px;
+}
+
+@keyframes scanlines {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(4px); }
+}
+
+.polaroid-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 95%,
+        rgba(255, 0, 255, 0.1) 95%,
+        rgba(255, 0, 255, 0.1) 98%,
+        transparent 98%
+    );
+    pointer-events: none;
+    animation: glitch 3s infinite;
+    border-radius: 8px;
+}
+
+@keyframes glitch {
+    0%, 90%, 100% { opacity: 0; }
+    91%, 94% { opacity: 0.8; transform: translateX(2px); }
+    92%, 93% { opacity: 0.4; transform: translateX(-2px); }
+}
+
+.photo-metadata {
+    font-size: 7px;
+    color: #2c3e50;
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 1.4;
+}
+
+.photo-date {
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 5px;
+}
+
+.photo-location {
+    color: #7f8c8d;
+    font-size: 6px;
+}
+
+/* Footer styling */
+.footer {
+    text-align: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border-top: 2px solid #ffe66d;
+    flex-shrink: 0;
+}
+
+.footer p {
+    font-size: 7px;
+    color: #7f8c8d;
+    letter-spacing: 1px;
+}
+
+/* Hidden utility class */
+.hidden {
+    display: none !important;
+}
+
+/* Loading animation */
+.loading {
+    display: inline-block;
+    animation: pulse-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-loading {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive adjustments for larger screens */
+@media (min-width: 768px) {
+    .app-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        height: calc(100vh - 40px);
+    }
+    
+    .header {
+        border-radius: 15px;
+        border: 2px solid #ff6b9d;
+        border-bottom: 2px solid #ff6b9d;
+    }
+    
+    .title {
+        font-size: 20px;
+    }
+    
+    .subtitle {
+        font-size: 10px;
+    }
+    
+    .control-btn {
+        font-size: 10px;
+        padding: 15px 20px;
+    }
+    
+    .map-container {
+        margin: 20px 0;
+        border-radius: 15px;
+        overflow: hidden;
+        height: calc(100vh - 280px);
+    }
+    
+    .interactive-map {
+        border-radius: 15px;
+    }
+    
+    .info-panel {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100%);
+        width: 90%;
+        max-width: 500px;
+        border-radius: 15px;
+    }
+    
+    .info-panel:not(.hidden) {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Custom scrollbar for webkit browsers */
+.timeline-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.timeline-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #ff6b9d, #4ecdc4);
+    border-radius: 4px;
+} 
