@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let map = null;
   let userLocation = null;
   let photoMarkers = []; // Individual photo markers
+  let clusterMarkers = []; // Clustered photo markers
   let currentView = "map"; // 'map' or 'timeline'
   let photoIdCounter = 100; // Start from 100 for new photos
 
@@ -85,6 +86,184 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
+   * Calculate distance between two coordinates in meters using Haversine formula
+   */
+  function calculateDistanceInMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // Earth's radius in meters
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  }
+
+  /**
+   * Group photos by proximity (within 10 meters)
+   */
+  function groupPhotosByProximity(photos) {
+    if (photos.length === 0) return [];
+
+    const clusters = [];
+    const processed = new Set();
+
+    for (let i = 0; i < photos.length; i++) {
+      if (processed.has(i)) continue;
+
+      const cluster = [photos[i]];
+      processed.add(i);
+
+      for (let j = i + 1; j < photos.length; j++) {
+        if (processed.has(j)) continue;
+
+        const distance = calculateDistanceInMeters(
+          photos[i].latitude,
+          photos[i].longitude,
+          photos[j].latitude,
+          photos[j].longitude
+        );
+
+        if (distance <= 10) {
+          // 10 meters threshold
+          cluster.push(photos[j]);
+          processed.add(j);
+        }
+      }
+
+      clusters.push(cluster);
+    }
+
+    return clusters;
+  }
+
+  /**
+   * Add clustered photo markers to map
+   */
+  function addClusteredPhotoMarkers() {
+    // Clear existing markers
+    photoMarkers.forEach(({ marker }) => {
+      if (map.hasLayer(marker)) {
+        map.removeLayer(marker);
+      }
+    });
+    photoMarkers = [];
+
+    clusterMarkers.forEach(({ marker }) => {
+      if (map.hasLayer(marker)) {
+        map.removeLayer(marker);
+      }
+    });
+    clusterMarkers = [];
+
+    // Group photos by proximity
+    const clusters = groupPhotosByProximity(mockPhotos);
+
+    clusters.forEach((cluster) => {
+      if (cluster.length === 1) {
+        // Single photo - add individual marker
+        addIndividualPhotoMarker(cluster[0]);
+      } else {
+        // Multiple photos - add cluster marker
+        addClusterMarker(cluster);
+      }
+    });
+  }
+
+  /**
+   * Calculate distance between two coordinates in meters using Haversine formula
+   */
+  function calculateDistanceInMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // Earth's radius in meters
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  }
+
+  /**
+   * Group photos by proximity (within 10 meters)
+   */
+  function groupPhotosByProximity(photos) {
+    if (photos.length === 0) return [];
+
+    const clusters = [];
+    const processed = new Set();
+
+    for (let i = 0; i < photos.length; i++) {
+      if (processed.has(i)) continue;
+
+      const cluster = [photos[i]];
+      processed.add(i);
+
+      for (let j = i + 1; j < photos.length; j++) {
+        if (processed.has(j)) continue;
+
+        const distance = calculateDistanceInMeters(
+          photos[i].latitude,
+          photos[i].longitude,
+          photos[j].latitude,
+          photos[j].longitude
+        );
+
+        if (distance <= 10) {
+          // 10 meters threshold
+          cluster.push(photos[j]);
+          processed.add(j);
+        }
+      }
+
+      clusters.push(cluster);
+    }
+
+    return clusters;
+  }
+
+  /**
+   * Add clustered photo markers to map
+   */
+  function addClusteredPhotoMarkers() {
+    // Clear existing markers
+    photoMarkers.forEach(({ marker }) => {
+      if (map.hasLayer(marker)) {
+        map.removeLayer(marker);
+      }
+    });
+    photoMarkers = [];
+
+    clusterMarkers.forEach(({ marker }) => {
+      if (map.hasLayer(marker)) {
+        map.removeLayer(marker);
+      }
+    });
+    clusterMarkers = [];
+
+    // Group photos by proximity
+    const clusters = groupPhotosByProximity(mockPhotos);
+
+    clusters.forEach((cluster) => {
+      if (cluster.length === 1) {
+        // Single photo - add individual marker
+        addIndividualPhotoMarker(cluster[0]);
+      } else {
+        // Multiple photos - add cluster marker
+        addClusterMarker(cluster);
+      }
+    });
+  }
+
+  /**
    * Add individual photo marker to map
    */
   function addIndividualPhotoMarker(photo) {
@@ -123,6 +302,236 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     photoMarkers.push({ marker, photo });
+  }
+
+  /**
+   * Add cluster marker for multiple photos
+   */
+  function addClusterMarker(cluster) {
+    // Sort photos by date (newest first)
+    cluster.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Calculate cluster center
+    const centerLat =
+      cluster.reduce((sum, photo) => sum + photo.latitude, 0) / cluster.length;
+    const centerLng =
+      cluster.reduce((sum, photo) => sum + photo.longitude, 0) / cluster.length;
+
+    // Create custom icon for cluster
+    const clusterIcon = L.divIcon({
+      html: `<div class="cluster-marker">
+                <span class="cluster-count">${cluster.length}</span>
+                📸
+              </div>`,
+      className: "custom-cluster-marker",
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+    });
+
+    // Create marker with custom icon
+    const marker = L.marker([centerLat, centerLng], {
+      icon: clusterIcon,
+      title: `${cluster.length} photos at ${cluster[0].location}`,
+    }).addTo(map);
+
+    // Add entrance animation
+    const markerElement = marker.getElement();
+    if (markerElement) {
+      markerElement.style.opacity = "0";
+      markerElement.style.transform = "scale(0)";
+      markerElement.style.transition =
+        "all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+
+      setTimeout(() => {
+        markerElement.style.opacity = "1";
+        markerElement.style.transform = "scale(1)";
+      }, 100);
+    }
+
+    // Add click event to show cluster details
+    marker.on("click", () => {
+      showClusterDetails(cluster);
+    });
+
+    clusterMarkers.push({ marker, cluster });
+  }
+
+  /**
+   * Show cluster details with carousel navigation
+   */
+  function showClusterDetails(photos) {
+    let currentIndex = 0; // Start with newest photo
+
+    function updateCarousel() {
+      const photo = photos[currentIndex];
+      const polaroidHTML = `
+        <div class="cluster-header">
+          <h3>📸 ${photos.length} Photos at ${photo.location}</h3>
+          <p>Photo ${currentIndex + 1} of ${photos.length}</p>
+        </div>
+        <div class="panel-polaroid">
+          <img src="${photo.url}" alt="${photo.description}" />
+          <div class="panel-metadata">
+            <div class="panel-date">${photo.date}</div>
+            <div class="panel-location">${photo.location}</div>
+            <div style="margin-top: 10px; font-size: 7px; color: #34495e; line-height: 1.3;">
+              ${photo.description}
+            </div>
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev-btn" ${
+            currentIndex === 0 ? "disabled" : ""
+          }>◀ Previous</button>
+          <button class="carousel-btn next-btn" ${
+            currentIndex === photos.length - 1 ? "disabled" : ""
+          }>Next ▶</button>
+        </div>
+      `;
+
+      panelContent.innerHTML = polaroidHTML;
+      infoPanel.classList.remove("hidden");
+
+      // Add event listeners for navigation buttons
+      const prevBtn = document.querySelector(".prev-btn");
+      const nextBtn = document.querySelector(".next-btn");
+
+      if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+          if (currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+          }
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          if (currentIndex < photos.length - 1) {
+            currentIndex++;
+            updateCarousel();
+          }
+        });
+      }
+    }
+
+    updateCarousel();
+  }
+
+  /**
+   * Add cluster marker for multiple photos
+   */
+  function addClusterMarker(cluster) {
+    // Sort photos by date (newest first)
+    cluster.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Calculate cluster center
+    const centerLat =
+      cluster.reduce((sum, photo) => sum + photo.latitude, 0) / cluster.length;
+    const centerLng =
+      cluster.reduce((sum, photo) => sum + photo.longitude, 0) / cluster.length;
+
+    // Create custom icon for cluster
+    const clusterIcon = L.divIcon({
+      html: `<div class="cluster-marker">
+                <span class="cluster-count">${cluster.length}</span>
+                📸
+              </div>`,
+      className: "custom-cluster-marker",
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+    });
+
+    // Create marker with custom icon
+    const marker = L.marker([centerLat, centerLng], {
+      icon: clusterIcon,
+      title: `${cluster.length} photos at ${cluster[0].location}`,
+    }).addTo(map);
+
+    // Add entrance animation
+    const markerElement = marker.getElement();
+    if (markerElement) {
+      markerElement.style.opacity = "0";
+      markerElement.style.transform = "scale(0)";
+      markerElement.style.transition =
+        "all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+
+      setTimeout(() => {
+        markerElement.style.opacity = "1";
+        markerElement.style.transform = "scale(1)";
+      }, 100);
+    }
+
+    // Add click event to show cluster details
+    marker.on("click", () => {
+      showClusterDetails(cluster);
+    });
+
+    clusterMarkers.push({ marker, cluster });
+  }
+
+  /**
+   * Show cluster details with carousel navigation
+   */
+  function showClusterDetails(photos) {
+    let currentIndex = 0; // Start with newest photo
+
+    function updateCarousel() {
+      const photo = photos[currentIndex];
+      const polaroidHTML = `
+        <div class="cluster-header">
+          <h3>📸 ${photos.length} Photos at ${photo.location}</h3>
+          <p>Photo ${currentIndex + 1} of ${photos.length}</p>
+        </div>
+        <div class="panel-polaroid">
+          <img src="${photo.url}" alt="${photo.description}" />
+          <div class="panel-metadata">
+            <div class="panel-date">${photo.date}</div>
+            <div class="panel-location">${photo.location}</div>
+            <div style="margin-top: 10px; font-size: 7px; color: #34495e; line-height: 1.3;">
+              ${photo.description}
+            </div>
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev-btn" ${
+            currentIndex === 0 ? "disabled" : ""
+          }>◀ Previous</button>
+          <button class="carousel-btn next-btn" ${
+            currentIndex === photos.length - 1 ? "disabled" : ""
+          }>Next ▶</button>
+        </div>
+      `;
+
+      panelContent.innerHTML = polaroidHTML;
+      infoPanel.classList.remove("hidden");
+
+      // Add event listeners for navigation buttons
+      const prevBtn = document.querySelector(".prev-btn");
+      const nextBtn = document.querySelector(".next-btn");
+
+      if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+          if (currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+          }
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          if (currentIndex < photos.length - 1) {
+            currentIndex++;
+            updateCarousel();
+          }
+        });
+      }
+    }
+
+    updateCarousel();
   }
 
   /**
@@ -310,8 +719,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add to photos array
     mockPhotos.push(newPhoto);
 
-    // Add marker to map (visible immediately since user just added it)
-    addIndividualPhotoMarker(newPhoto);
+    // Update clustered markers on map
+    addClusteredPhotoMarkers();
 
     // Hide form and show success message
     hidePhotoDetails();
@@ -571,7 +980,7 @@ document.addEventListener("DOMContentLoaded", function () {
    * Get user's current location for initial landing page
    */
   function getInitialLocation() {
-    console.log("� Getting initial location for landing page...");
+    console.log("📍 Getting initial location for landing page...");
     landingStatus.innerHTML = "📍 Finding your location...";
 
     if (!navigator.geolocation) {
@@ -742,6 +1151,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize the map (but it will be invisible until main app shows)
   initializeMap();
+
+  // Initialize clustered photo markers
+  addClusteredPhotoMarkers();
 
   // Set initial status
   statusMessage.innerHTML = "Click on the map to add your memories! 📍";

@@ -265,6 +265,47 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
+/* Cluster marker styling */
+.cluster-marker {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(45deg, #e74c3c, #f39c12);
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 15;
+}
+
+.cluster-marker:hover {
+  transform: scale(1.2);
+  z-index: 100;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cluster-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #2c3e50;
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid white;
+}
+
 /* User location marker */
 .user-marker {
   width: 40px;
@@ -507,6 +548,62 @@ body {
 .panel-location {
   color: #7f8c8d;
   font-size: 7px;
+}
+
+/* Cluster header styling */
+.cluster-header {
+  text-align: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ffe66d;
+}
+
+.cluster-header h3 {
+  font-size: 10px;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  letter-spacing: 1px;
+}
+
+.cluster-header p {
+  font-size: 8px;
+  color: #7f8c8d;
+  margin: 0;
+}
+
+/* Carousel controls styling */
+.carousel-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  justify-content: center;
+}
+
+.carousel-btn {
+  font-family: "Press Start 2P", cursive;
+  font-size: 7px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  color: white;
+  box-shadow: 0 4px 15px rgba(68, 160, 141, 0.4);
+}
+
+.carousel-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(68, 160, 141, 0.6);
+}
+
+.carousel-btn:disabled {
+  background: linear-gradient(45deg, #bdc3c7, #95a5a6);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Add Photo Form Styling */
