@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let expandedAreas = new Set(); // Track which areas are currently expanded
     let isInitialLoad = true; // Flag for initial map setup
     let currentExpandedArea = null; // Currently expanded area for list view
+    let userRequestedLocation = false; // Track if user manually requested location
 
     // ==============================================================
     // AUCKLAND AREAS AND PHOTO DATA
@@ -860,11 +861,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Invalidate map size to ensure proper rendering
                 if (map) {
                     map.invalidateSize();
-                    // Center map on user location with animation
-                    map.setView([userLocation.latitude, userLocation.longitude], 14, {
-                        animate: true,
-                        duration: 1.5
-                    });
+                    
+                    // Only auto-center if user hasn't manually requested location
+                    if (!userRequestedLocation) {
+                        // Center map on user location with animation
+                        map.setView([userLocation.latitude, userLocation.longitude], 14, {
+                            animate: true,
+                            duration: 1.5
+                        });
+                    }
 
                     // Add user location marker
                     addUserLocationMarker();
@@ -1017,6 +1022,15 @@ document.addEventListener('DOMContentLoaded', function () {
     function getCurrentLocation() {
         console.log('🔍 Getting precise location for Find Me...');
 
+        // Mark that user manually requested location
+        userRequestedLocation = true;
+
+        // Prevent multiple concurrent requests
+        if (findMeBtn.disabled) {
+            console.log('Find Me already in progress...');
+            return;
+        }
+
         // Update main app status
         console.log('📍 Finding your precise location...');
         findMeBtn.textContent = '📍';
@@ -1033,8 +1047,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // High accuracy settings for manual requests
         const options = {
             enableHighAccuracy: true,
-            timeout: 20000, // Longer timeout for better accuracy
-            maximumAge: 0 // Force fresh location reading
+            timeout: 15000, // Reasonable timeout
+            maximumAge: 5000 // Allow slightly cached location for stability
         };
 
         console.log('🎯 Find Me location options:', options);
@@ -1043,27 +1057,34 @@ document.addEventListener('DOMContentLoaded', function () {
             (position) => {
                 console.log('✅ Precise location found:', position);
 
-                // Update user location with fresh data
-                userLocation = {
+                // Store the new location
+                const newLocation = {
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
                     accuracy: position.coords.accuracy
                 };
 
+                // Update global user location
+                userLocation = newLocation;
+
                 console.log(`📍 Location accuracy: ${position.coords.accuracy} meters`);
 
-                // Animate map to user location with higher zoom
+                // Smoothly animate to the location and lock the view
                 if (map) {
-                    map.setView([userLocation.latitude, userLocation.longitude], 17, {
+                    // Stop any ongoing animations first
+                    map.stop();
+                    
+                    // Set view with animation and higher zoom
+                    map.setView([newLocation.latitude, newLocation.longitude], 17, {
                         animate: true,
-                        duration: 2.0
+                        duration: 1.5
                     });
 
                     // Add/update user marker
                     addUserLocationMarker();
 
-                    // Update status with accuracy info
-                    const nearbyPhotos = filterNearbyPhotos(userLocation);
+                    // Log nearby content
+                    const nearbyPhotos = filterNearbyPhotos(newLocation);
                     const nearbyAreas = new Set(nearbyPhotos.map(photo => photo.area));
                     const accuracyText = position.coords.accuracy < 100 ?
                         `(±${Math.round(position.coords.accuracy)}m accuracy)` : '';
