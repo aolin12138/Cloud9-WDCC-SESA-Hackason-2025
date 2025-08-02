@@ -774,8 +774,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h3 style="font-size: 10px; margin-bottom: 15px; color: #2c3e50;">📸 ADD NEW MEMORY</h3>
                 <form id="photoForm">
                     <div class="form-group">
-                        <label for="photoUrl">Photo URL:</label>
-                        <input type="url" id="photoUrl" placeholder="https://example.com/photo.jpg" required>
+                        <label for="photoFile">Upload Photo:</label>
+                        <input type="file" id="photoFile" accept="image/*" required>
+                        <div class="file-info" id="fileInfo" style="display: none; font-size: 8px; color: #7f8c8d; margin-top: 5px;"></div>
                     </div>
                     <div class="form-group">
                         <label for="photoLocation">Location Name:</label>
@@ -788,6 +789,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="form-group">
                         <label for="photoDate">Date:</label>
                         <input type="date" id="photoDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="photoPublic">
+                            <input type="checkbox" id="photoPublic" checked> Make this memory public
+                        </label>
                     </div>
                     <div class="form-buttons">
                         <button type="submit" class="add-btn">✨ ADD MEMORY</button>
@@ -804,6 +810,40 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add form submit handler
         document.getElementById('photoForm').addEventListener('submit', handleAddPhoto);
+        
+        // Add file input change handler for immediate feedback
+        document.getElementById('photoFile').addEventListener('change', function(e) {
+            const fileInfoDiv = document.getElementById('fileInfo');
+            const file = e.target.files[0];
+            
+            if (!file) {
+                fileInfoDiv.style.display = 'none';
+                return;
+            }
+            
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                fileInfoDiv.textContent = 'Invalid file type. Please select a JPEG, PNG, GIF, or WebP image.';
+                fileInfoDiv.style.display = 'block';
+                fileInfoDiv.style.color = '#e74c3c';
+                return;
+            }
+            
+            // Validate file size (limit to 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            if (file.size > maxSize) {
+                fileInfoDiv.textContent = 'File too large (max 5MB). Please select a smaller image.';
+                fileInfoDiv.style.display = 'block';
+                fileInfoDiv.style.color = '#e74c3c';
+                return;
+            }
+            
+            // Show success message with file info
+            fileInfoDiv.textContent = `✓ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            fileInfoDiv.style.display = 'block';
+            fileInfoDiv.style.color = '#27ae60';
+        });
     }
     
     /**
@@ -812,59 +852,100 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleAddPhoto(e) {
         e.preventDefault();
         
-        const url = document.getElementById('photoUrl').value;
-        const location = document.getElementById('photoLocation').value;
-        const description = document.getElementById('photoDescription').value;
-        const date = document.getElementById('photoDate').value;
-        const lat = parseFloat(document.getElementById('photoLat').value);
-        const lng = parseFloat(document.getElementById('photoLng').value);
+        const fileInput = document.getElementById('photoFile');
+        const fileInfoDiv = document.getElementById('fileInfo');
+        const file = fileInput.files[0];
         
-        // Determine the area for the new photo
-        let areaId = null;
-        for (const key in aucklandAreas) {
-            if (aucklandAreas.hasOwnProperty(key)) {
-                const area = aucklandAreas[key];
-                if (lat >= area.latitude - 0.01 && lat <= area.latitude + 0.01 &&
-                    lng >= area.longitude - 0.01 && lng <= area.longitude + 0.01) {
-                    areaId = area.id;
-                    break;
+        if (!file) {
+            fileInfoDiv.textContent = 'Please select a photo to upload.';
+            fileInfoDiv.style.display = 'block';
+            fileInfoDiv.style.color = '#e74c3c';
+            return;
+        }
+        
+        // Validate file type
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            fileInfoDiv.textContent = 'Please select a valid image file (JPEG, PNG, GIF, or WebP).';
+            fileInfoDiv.style.display = 'block';
+            fileInfoDiv.style.color = '#e74c3c';
+            return;
+        }
+        
+        // Validate file size (limit to 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        if (file.size > maxSize) {
+            fileInfoDiv.textContent = 'File size too large. Please select an image smaller than 5MB.';
+            fileInfoDiv.style.display = 'block';
+            fileInfoDiv.style.color = '#e74c3c';
+            return;
+        }
+        
+        // Show file info
+        fileInfoDiv.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        fileInfoDiv.style.display = 'block';
+        fileInfoDiv.style.color = '#27ae60';
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const url = e.target.result;
+            const location = document.getElementById('photoLocation').value;
+            const description = document.getElementById('photoDescription').value;
+            const date = document.getElementById('photoDate').value;
+            const isPublic = document.getElementById('photoPublic').checked;
+            const lat = parseFloat(document.getElementById('photoLat').value);
+            const lng = parseFloat(document.getElementById('photoLng').value);
+            
+            // Determine the area for the new photo
+            let areaId = null;
+            for (const key in aucklandAreas) {
+                if (aucklandAreas.hasOwnProperty(key)) {
+                    const area = aucklandAreas[key];
+                    if (lat >= area.latitude - 0.01 && lat <= area.latitude + 0.01 &&
+                        lng >= area.longitude - 0.01 && lng <= area.longitude + 0.01) {
+                        areaId = area.id;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (!areaId) {
-            areaId = 'other'; // Fallback to 'other' if not in a defined area
-        }
-        
-        // Create new photo object
-        const newPhoto = {
-            id: photoIdCounter++,
-            url: url,
-            latitude: lat,
-            longitude: lng,
-            date: date,
-            location: location,
-            description: description,
-            area: areaId // Assign the determined area
+            if (!areaId) {
+                areaId = 'other'; // Fallback to 'other' if not in a defined area
+            }
+            
+            // Create new photo object
+            const newPhoto = {
+                id: photoIdCounter++,
+                url: url, // Use the URL from the FileReader
+                latitude: lat,
+                longitude: lng,
+                date: date,
+                location: location,
+                description: description,
+                isPublic: isPublic,
+                area: areaId // Assign the determined area
+            };
+            
+            // Add to photos array
+            mockPhotos.push(newPhoto);
+            
+            // Add marker to map (visible immediately since user just added it)
+            addIndividualPhotoMarker(newPhoto);
+            
+            // Hide form and show success message
+            hidePhotoDetails();
+            statusMessage.innerHTML = '✨ Memory added successfully!';
+            statusMessage.style.color = '#27ae60';
+            
+            // Refresh timeline view if active
+            if (currentView === 'timeline') {
+                updateTimelineView();
+            }
+            
+            console.log('📸 New photo added:', newPhoto);
         };
         
-        // Add to photos array
-        mockPhotos.push(newPhoto);
-        
-        // Add marker to map (visible immediately since user just added it)
-        addIndividualPhotoMarker(newPhoto);
-        
-        // Hide form and show success message
-        hidePhotoDetails();
-        statusMessage.innerHTML = '✨ Memory added successfully!';
-        statusMessage.style.color = '#27ae60';
-        
-        // Refresh timeline view if active
-        if (currentView === 'timeline') {
-            updateTimelineView();
-        }
-        
-        console.log('📸 New photo added:', newPhoto);
+        reader.readAsDataURL(file);
     }
     
     /**
@@ -1120,9 +1201,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the map
     initializeMap();
     
-    // Set initial status
-    statusMessage.innerHTML = 'Click area pins to explore memories! 📍 Use list view to browse areas.';
-    statusMessage.style.color = '#7f8c8d';
+    // Automatically get user location on page load
+    getCurrentLocation();
     
     // Add some mobile-specific touches
     if ('ontouchstart' in window) {
