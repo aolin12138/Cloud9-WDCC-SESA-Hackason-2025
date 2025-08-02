@@ -7,14 +7,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Get references to important HTML elements
     const findMeBtn = document.getElementById('findMeBtn');
-    const toggleViewBtn = document.getElementById('toggleViewBtn');
-    const statusMessage = document.getElementById('statusMessage');
     const mapElement = document.getElementById('map');
-    const timelineView = document.getElementById('timelineView');
-    const timeline = document.getElementById('timeline');
     const infoPanel = document.getElementById('infoPanel');
     const panelContent = document.getElementById('panelContent');
     const closePanelBtn = document.getElementById('closePanelBtn');
+
+    // Sidebar elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
 
     // Landing page elements
     const landingPage = document.getElementById('landingPage');
@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let userLocation = null;
     let areaMarkers = []; // Cluster/area markers
     let photoMarkers = []; // Individual photo markers
-    let currentView = 'map'; // 'map' or 'timeline'
     let photoIdCounter = 100; // Start from 100 for new photos
     let loadedAreas = new Set(); // Track which areas have been "loaded"
     let expandedAreas = new Set(); // Track which areas are currently expanded
@@ -377,11 +376,6 @@ document.addEventListener('DOMContentLoaded', function () {
             expandArea(areaId, photosInArea);
             currentExpandedArea = areaId;
         }
-
-        // Update list view if currently in timeline mode
-        if (currentView === 'timeline') {
-            updateTimelineView();
-        }
     }
 
     /**
@@ -408,9 +402,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Update area marker to show expanded state
         updateAreaMarkerState(areaId, true);
-
-        statusMessage.innerHTML = `📸 Discovered ${photos.length} memories in ${aucklandAreas[areaId].name}!`;
-        statusMessage.style.color = '#27ae60';
     }
 
     /**
@@ -529,8 +520,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-            statusMessage.innerHTML = '✨ Central Auckland areas loaded!';
-            statusMessage.style.color = '#27ae60';
+            console.log('✨ Central Auckland areas loaded!');
         }
     }
 
@@ -620,20 +610,15 @@ document.addEventListener('DOMContentLoaded', function () {
     function showLoadingStatus(count, type = 'memory') {
         const itemName = type === 'area' ? 'area' : 'memory';
         const loadingMessage = `🔄 Loading ${count} new ${itemName}${count === 1 ? '' : 's'}...`;
-        statusMessage.innerHTML = loadingMessage;
-        statusMessage.style.color = '#3498db';
-        statusMessage.classList.add('loading');
+        console.log(loadingMessage);
 
         // Clear loading message after animation completes
         setTimeout(() => {
-            statusMessage.innerHTML = `✨ ${count} new ${itemName}${count === 1 ? '' : 's'} discovered!`;
-            statusMessage.style.color = '#27ae60';
-            statusMessage.classList.remove('loading');
+            console.log(`✨ ${count} new ${itemName}${count === 1 ? '' : 's'} discovered!`);
 
             // Reset to default message after a delay
             setTimeout(() => {
-                statusMessage.innerHTML = 'Explore Auckland areas to discover memories! 📍✨';
-                statusMessage.style.color = '#7f8c8d';
+                console.log('Explore Auckland areas to discover memories! 📍✨');
             }, 2000);
         }, 1500);
     }
@@ -644,109 +629,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function onMapClick(e) {
         const { lat, lng } = e.latlng;
         showAddPhotoForm(lat, lng);
-    }
-
-    // ==============================================================
-    // TIMELINE/LIST VIEW MANAGEMENT
-    // ==============================================================
-
-    /**
-     * Update timeline view based on current state
-     */
-    function updateTimelineView() {
-        timeline.innerHTML = '';
-
-        if (currentExpandedArea) {
-            // Show photos from expanded area
-            const photosInArea = mockPhotos.filter(photo => photo.area === currentExpandedArea);
-            const area = aucklandAreas[currentExpandedArea];
-
-            // Add area header
-            const areaHeader = document.createElement('div');
-            areaHeader.className = 'area-header';
-            areaHeader.innerHTML = `
-                <h3>${area.icon} ${area.name}</h3>
-                <p>${area.description}</p>
-                <div class="photo-count">${photosInArea.length} memories</div>
-            `;
-            timeline.appendChild(areaHeader);
-
-            // Add photos
-            displayPhotosInTimeline(photosInArea);
-        } else {
-            // Show visible areas as categories
-            displayAreasInTimeline();
-        }
-    }
-
-    /**
-     * Display areas as categories in timeline
-     */
-    function displayAreasInTimeline() {
-        const bounds = map.getBounds();
-        const visibleAreas = areaMarkers.filter(markerData => {
-            const markerLatLng = markerData.marker.getLatLng();
-            return bounds.contains(markerLatLng) && loadedAreas.has(markerData.area.id);
-        });
-
-        if (visibleAreas.length === 0) {
-            const noAreasMsg = document.createElement('div');
-            noAreasMsg.className = 'placeholder-message';
-            noAreasMsg.textContent = 'Pan around the map to discover Auckland areas! 🗺️';
-            timeline.appendChild(noAreasMsg);
-            return;
-        }
-
-        visibleAreas.forEach(markerData => {
-            const area = markerData.area;
-            const photosInArea = mockPhotos.filter(photo => photo.area === area.id);
-
-            const areaCard = document.createElement('div');
-            areaCard.className = 'area-card';
-            areaCard.innerHTML = `
-                <div class="area-card-header">
-                    <div class="area-icon-large">${area.icon}</div>
-                    <div class="area-info">
-                        <h4>${area.name}</h4>
-                        <p>${area.description}</p>
-                        <div class="memory-count">${photosInArea.length} memories</div>
-                    </div>
-                </div>
-            `;
-
-            areaCard.addEventListener('click', () => {
-                // Switch back to map and expand this area
-                if (currentView === 'timeline') {
-                    toggleView(); // Switch to map view
-                }
-                setTimeout(() => {
-                    toggleAreaExpansion(area.id);
-                }, 300);
-            });
-
-            timeline.appendChild(areaCard);
-        });
-    }
-
-    /**
-     * Display photos in timeline view
-     */
-    function displayPhotosInTimeline(photos) {
-        if (photos.length === 0) {
-            const noPhotosMsg = document.createElement('div');
-            noPhotosMsg.className = 'placeholder-message';
-            noPhotosMsg.textContent = 'No memories found in this area.';
-            timeline.appendChild(noPhotosMsg);
-            return;
-        }
-
-        // Sort photos by date
-        photos.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        photos.forEach(photo => {
-            const card = createPolaroidCard(photo);
-            timeline.appendChild(card);
-        });
     }
 
     // ==============================================================
@@ -865,13 +747,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Hide form and show success message
         hidePhotoDetails();
-        statusMessage.innerHTML = '✨ Memory added successfully!';
-        statusMessage.style.color = '#27ae60';
-
-        // Refresh timeline view if active
-        if (currentView === 'timeline') {
-            updateTimelineView();
-        }
+        console.log('✨ Memory added successfully!');
 
         console.log('📸 New photo added:', newPhoto);
     }
@@ -998,9 +874,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const nearbyPhotos = filterNearbyPhotos(userLocation);
                 const nearbyAreas = new Set(nearbyPhotos.map(photo => photo.area));
 
-                statusMessage.innerHTML = `✨ Found your location! ${nearbyPhotos.length} memories in ${nearbyAreas.size} areas nearby.`;
-                statusMessage.style.color = '#27ae60';
-                findMeBtn.textContent = '📍 FIND ME';
+                console.log(`✨ Found your location! ${nearbyPhotos.length} memories in ${nearbyAreas.size} areas nearby.`);
+                findMeBtn.textContent = '📍';
                 findMeBtn.disabled = false;
             }, 200);
         }, 1000);
@@ -1096,14 +971,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 2000);
         }
 
-        // Set error message in main app
-        statusMessage.innerHTML = errorMessage;
-        statusMessage.style.color = '#e74c3c';
-        findMeBtn.textContent = '📍 FIND ME';
+        console.log(errorMessage);
+        findMeBtn.textContent = '📍';
         findMeBtn.disabled = false;
 
         setTimeout(() => {
-            statusMessage.innerHTML += '<br/>🇳🇿 Showing Auckland area clusters.';
+            console.log('🇳🇿 Showing Auckland area clusters.');
         }, 1000);
     }
 
@@ -1145,9 +1018,8 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('🔍 Getting precise location for Find Me...');
 
         // Update main app status
-        statusMessage.innerHTML = '📍 Finding your precise location...';
-        statusMessage.className = 'status-message loading';
-        findMeBtn.textContent = '📍 SEARCHING...';
+        console.log('📍 Finding your precise location...');
+        findMeBtn.textContent = '📍';
         findMeBtn.disabled = true;
 
         if (!navigator.geolocation) {
@@ -1196,65 +1068,43 @@ document.addEventListener('DOMContentLoaded', function () {
                     const accuracyText = position.coords.accuracy < 100 ?
                         `(±${Math.round(position.coords.accuracy)}m accuracy)` : '';
 
-                    statusMessage.innerHTML = `✨ Found your precise location! ${accuracyText}<br/>${nearbyPhotos.length} memories in ${nearbyAreas.size} areas nearby.`;
-                    statusMessage.style.color = '#27ae60';
+                    console.log(`✨ Found your precise location! ${accuracyText} - ${nearbyPhotos.length} memories in ${nearbyAreas.size} areas nearby.`);
                 }
 
-                findMeBtn.textContent = '📍 FIND ME';
+                findMeBtn.textContent = '📍';
                 findMeBtn.disabled = false;
             },
             (error) => {
-                console.error('❌ Find Me location error:', error);
-                statusMessage.innerHTML = '❌ Could not get precise location. Try again.';
-                statusMessage.style.color = '#e74c3c';
-                findMeBtn.textContent = '📍 FIND ME';
+                console.log('❌ Could not get precise location. Try again.');
+                findMeBtn.textContent = '📍';
                 findMeBtn.disabled = false;
             },
             options
         );
     }
 
-    /**
-     * Toggle between map and timeline views
-     */
-    function toggleView() {
-        if (currentView === 'map') {
-            // Switch to timeline view
-            currentView = 'timeline';
-            mapElement.parentElement.classList.add('hidden');
-            timelineView.classList.remove('hidden');
-            toggleViewBtn.textContent = '🗺️ MAP VIEW';
 
-            // Update timeline based on current state
-            updateTimelineView();
-
-        } else {
-            // Switch to map view
-            currentView = 'map';
-            mapElement.parentElement.classList.remove('hidden');
-            timelineView.classList.add('hidden');
-            toggleViewBtn.textContent = '📋 LIST VIEW';
-
-            // Refresh map if needed
-            if (map) {
-                setTimeout(() => {
-                    map.invalidateSize();
-                }, 100);
-            }
-        }
-
-        hidePhotoDetails(); // Close any open panels
-    }
 
     // ==============================================================
     // EVENT LISTENERS
     // ==============================================================
 
+    // Sidebar toggle button
+    sidebarToggle.addEventListener('click', function () {
+        sidebar.classList.toggle('expanded');
+
+        // Update toggle button icon
+        if (sidebar.classList.contains('expanded')) {
+            sidebarToggle.textContent = '✕';
+            sidebarToggle.title = 'Close sidebar';
+        } else {
+            sidebarToggle.textContent = '☰';
+            sidebarToggle.title = 'Open sidebar';
+        }
+    });
+
     // Find Me button
     findMeBtn.addEventListener('click', getCurrentLocation);
-
-    // Toggle View button
-    toggleViewBtn.addEventListener('click', toggleView);
 
     // Close panel button
     closePanelBtn.addEventListener('click', hidePhotoDetails);
@@ -1269,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Handle device orientation changes
     window.addEventListener('orientationchange', function () {
         setTimeout(() => {
-            if (map && currentView === 'map') {
+            if (map) {
                 map.invalidateSize();
             }
         }, 500);
@@ -1283,8 +1133,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeMap();
 
     // Set initial status
-    statusMessage.innerHTML = 'Click area pins to explore memories! 📍 Use list view to browse areas.';
-    statusMessage.style.color = '#7f8c8d';
+    console.log('Click area pins to explore memories! 📍 Use list view to browse areas.');
 
     // Add some mobile-specific touches
     if ('ontouchstart' in window) {
@@ -1299,4 +1148,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 1000); // Increased delay to ensure map is ready
 
     console.log('🇳🇿 Memory Map initialized for Auckland with area clustering! Ready for exploration.');
+
+    // Force map to resize when window loads and resizes
+    window.addEventListener('load', function () {
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 100);
+    });
+
+    window.addEventListener('resize', function () {
+        if (map) {
+            map.invalidateSize();
+        }
+    });
 }); 
