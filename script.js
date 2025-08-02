@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
-   * Group photos by proximity (within 10 meters)
+   * Group photos by proximity (within 30 meters)
    */
   function groupPhotosByProximity(photos) {
     if (photos.length === 0) return [];
@@ -128,8 +128,8 @@ document.addEventListener("DOMContentLoaded", function () {
           photos[j].longitude
         );
 
-        if (distance <= 10) {
-          // 10 meters threshold
+        if (distance <= 30) {
+          // 30 meters threshold
           cluster.push(photos[j]);
           processed.add(j);
         }
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
-   * Group photos by proximity (within 10 meters)
+   * Group photos by proximity (within 30 meters)
    */
   function groupPhotosByProximity(photos) {
     if (photos.length === 0) return [];
@@ -217,8 +217,8 @@ document.addEventListener("DOMContentLoaded", function () {
           photos[j].longitude
         );
 
-        if (distance <= 10) {
-          // 10 meters threshold
+        if (distance <= 30) {
+          // 30 meters threshold
           cluster.push(photos[j]);
           processed.add(j);
         }
