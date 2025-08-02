@@ -3,8 +3,8 @@
 // ==============================================================
 
 // Wait for the DOM to fully load before running our code
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     // Get references to important HTML elements
     const findMeBtn = document.getElementById('findMeBtn');
     const toggleViewBtn = document.getElementById('toggleViewBtn');
@@ -15,7 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const infoPanel = document.getElementById('infoPanel');
     const panelContent = document.getElementById('panelContent');
     const closePanelBtn = document.getElementById('closePanelBtn');
-    
+
+    // Landing page elements
+    const landingPage = document.getElementById('landingPage');
+    const landingStatus = document.getElementById('landingStatus');
+    const mainApp = document.getElementById('mainApp');
+
     // Map and user location variables
     let map = null;
     let userLocation = null;
@@ -27,11 +32,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let expandedAreas = new Set(); // Track which areas are currently expanded
     let isInitialLoad = true; // Flag for initial map setup
     let currentExpandedArea = null; // Currently expanded area for list view
-    
+
     // ==============================================================
     // AUCKLAND AREAS AND PHOTO DATA
     // ==============================================================
-    
+
     // Define significant areas in Auckland
     const aucklandAreas = {
         'city-centre': {
@@ -83,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
             icon: '⛵'
         }
     };
-    
+
     // Mock photos organized by areas
     const mockPhotos = [
         // City Centre
@@ -117,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             description: 'Peaceful afternoon in the heart of the city',
             area: 'city-centre'
         },
-        
+
         // Waterfront
         {
             id: 4,
@@ -139,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
             description: 'Coffee and boats at the beautiful waterfront',
             area: 'waterfront'
         },
-        
+
         // Eastern Suburbs
         {
             id: 6,
@@ -161,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
             description: 'Boutique shopping and cafes',
             area: 'eastern-suburbs'
         },
-        
+
         // Southern Areas
         {
             id: 8,
@@ -193,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
             description: 'Retail therapy in the fashion district',
             area: 'southern-areas'
         },
-        
+
         // Western Areas
         {
             id: 11,
@@ -205,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             description: 'Trendy cafe hopping in Ponsonby',
             area: 'western-areas'
         },
-        
+
         // North Shore
         {
             id: 12,
@@ -218,11 +223,11 @@ document.addEventListener('DOMContentLoaded', function() {
             area: 'north-shore'
         }
     ];
-    
+
     // ==============================================================
     // MAP INITIALIZATION AND MANAGEMENT
     // ==============================================================
-    
+
     /**
      * Initialize the Leaflet map centered on Auckland Central
      */
@@ -230,7 +235,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auckland Central coordinates
         const aucklandLat = -36.8485;
         const aucklandLng = 174.7633;
-        
+
+        console.log('🗺️ Initializing map...');
+
         // Create map with mobile-friendly settings
         map = L.map('map', {
             center: [aucklandLat, aucklandLng],
@@ -245,46 +252,48 @@ document.addEventListener('DOMContentLoaded', function() {
             tap: true,
             tapTolerance: 15
         });
-        
+
+        console.log('📍 Map object created:', map);
+
         // Add retro-styled tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '🗺️ Memory Map • Auckland Areas • © OpenStreetMap contributors',
             maxZoom: 19,
             className: 'map-tiles'
         }).addTo(map);
-        
+
         // Add custom styling to map
         map.getContainer().style.filter = 'sepia(20%) saturate(0.9) contrast(1.1)';
-        
+
         // Add area markers to map
         addAreaMarkersToMap();
-        
+
         // Add click event to map for adding new photos
         map.on('click', onMapClick);
-        
+
         // Add dynamic loading event listeners
         map.on('moveend', handleMapMoveEnd);
         map.on('zoomend', handleMapMoveEnd);
-        
+
         // Wait for map to be fully loaded, then start dynamic loading
         map.whenReady(() => {
             console.log('📍 Map is ready, starting area loading...');
-            
+
             // Initial area loading after map is ready
             setTimeout(() => {
                 isInitialLoad = false;
                 loadAreasInView();
-                
+
                 // Fallback: ensure central areas are visible
                 setTimeout(() => {
                     ensureAreasVisible();
                 }, 2000);
             }, 500);
         });
-        
+
         console.log('🗺️ Interactive map initialized for Auckland with area clustering!');
     }
-    
+
     /**
      * Add area cluster markers to the map
      */
@@ -295,23 +304,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         areaMarkers = [];
         loadedAreas.clear();
-        
+
         Object.values(aucklandAreas).forEach(area => {
             // Show central areas immediately, hide others for dynamic loading
             const isCentralArea = ['city-centre', 'waterfront'].includes(area.id);
             addAreaMarker(area, !isCentralArea);
         });
-        
+
         console.log(`📍 Added ${areaMarkers.length} area markers to map`);
     }
-    
+
     /**
      * Add a single area marker to the map
      */
     function addAreaMarker(area, hidden = false) {
         const photosInArea = mockPhotos.filter(photo => photo.area === area.id);
         const photoCount = photosInArea.length;
-        
+
         // Create custom icon for the area marker
         const areaIcon = L.divIcon({
             html: `<div class="area-marker${hidden ? ' hidden-marker' : ''}" data-area="${area.id}">
@@ -323,13 +332,13 @@ document.addEventListener('DOMContentLoaded', function() {
             iconAnchor: [25, 60],
             popupAnchor: [0, -60]
         });
-        
+
         // Create marker with custom icon
         const marker = L.marker([area.latitude, area.longitude], {
             icon: areaIcon,
             title: `${area.name} (${photoCount} memories)`
         }).addTo(map);
-        
+
         // Hide marker initially if specified
         if (hidden) {
             const markerElement = marker.getElement();
@@ -343,22 +352,22 @@ document.addEventListener('DOMContentLoaded', function() {
             loadedAreas.add(area.id);
             console.log(`👁️ Visible area marker added: ${area.name}`);
         }
-        
+
         // Add click event to expand/collapse area
         marker.on('click', () => {
             toggleAreaExpansion(area.id);
         });
-        
+
         areaMarkers.push({ marker, area });
     }
-    
+
     /**
      * Toggle expansion of an area to show/hide individual photos
      */
     function toggleAreaExpansion(areaId) {
         const area = aucklandAreas[areaId];
         const photosInArea = mockPhotos.filter(photo => photo.area === areaId);
-        
+
         if (expandedAreas.has(areaId)) {
             // Collapse area - hide individual photos
             collapseArea(areaId);
@@ -368,68 +377,68 @@ document.addEventListener('DOMContentLoaded', function() {
             expandArea(areaId, photosInArea);
             currentExpandedArea = areaId;
         }
-        
+
         // Update list view if currently in timeline mode
         if (currentView === 'timeline') {
             updateTimelineView();
         }
     }
-    
+
     /**
      * Expand an area to show individual photo markers
      */
     function expandArea(areaId, photos) {
         console.log(`📸 Expanding area: ${aucklandAreas[areaId].name}`);
-        
+
         // First collapse any other expanded areas
         expandedAreas.forEach(otherAreaId => {
             if (otherAreaId !== areaId) {
                 collapseArea(otherAreaId);
             }
         });
-        
+
         expandedAreas.add(areaId);
-        
+
         // Add individual photo markers with animation
         photos.forEach((photo, index) => {
             setTimeout(() => {
                 addIndividualPhotoMarker(photo);
             }, index * 150);
         });
-        
+
         // Update area marker to show expanded state
         updateAreaMarkerState(areaId, true);
-        
+
         statusMessage.innerHTML = `📸 Discovered ${photos.length} memories in ${aucklandAreas[areaId].name}!`;
         statusMessage.style.color = '#27ae60';
     }
-    
+
     /**
      * Collapse an area to hide individual photo markers
      */
     function collapseArea(areaId) {
         console.log(`📦 Collapsing area: ${aucklandAreas[areaId].name}`);
-        
+
         expandedAreas.delete(areaId);
-        
+
         // Remove individual photo markers for this area
-        const markersToRemove = photoMarkers.filter(markerData => 
+        const markersToRemove = photoMarkers.filter(markerData =>
             markerData.photo.area === areaId
         );
-        
+
         markersToRemove.forEach(markerData => {
             map.removeLayer(markerData.marker);
         });
-        
+
         // Remove from photoMarkers array
-        photoMarkers = photoMarkers.filter(markerData => 
+        photoMarkers = photoMarkers.filter(markerData =>
             markerData.photo.area !== areaId
         );
-        
+
         // Update area marker to show collapsed state
         updateAreaMarkerState(areaId, false);
     }
-    
+
     /**
      * Add individual photo marker to map
      */
@@ -442,44 +451,44 @@ document.addEventListener('DOMContentLoaded', function() {
             iconAnchor: [15, 30],
             popupAnchor: [0, -30]
         });
-        
+
         // Create marker with custom icon
         const marker = L.marker([photo.latitude, photo.longitude], {
             icon: photoIcon,
             title: photo.location
         }).addTo(map);
-        
+
         // Add entrance animation
         const markerElement = marker.getElement();
         if (markerElement) {
             markerElement.style.opacity = '0';
             markerElement.style.transform = 'scale(0)';
             markerElement.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-            
+
             setTimeout(() => {
                 markerElement.style.opacity = '1';
                 markerElement.style.transform = 'scale(1)';
             }, 100);
         }
-        
+
         // Add click event to show photo details
         marker.on('click', () => {
             showPhotoDetails(photo);
         });
-        
+
         photoMarkers.push({ marker, photo });
     }
-    
+
     /**
      * Update area marker appearance based on expanded state
      */
     function updateAreaMarkerState(areaId, expanded) {
         const markerData = areaMarkers.find(m => m.area.id === areaId);
         if (!markerData) return;
-        
+
         const markerElement = markerData.marker.getElement();
         if (!markerElement) return;
-        
+
         const areaMarkerDiv = markerElement.querySelector('.area-marker');
         if (areaMarkerDiv) {
             if (expanded) {
@@ -489,7 +498,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     /**
      * Ensure at least some areas are visible (fallback function)
      */
@@ -500,13 +509,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 visibleCount++;
             }
         });
-        
+
         console.log(`📊 Currently visible areas: ${visibleCount}`);
-        
+
         // If no areas are visible, force load central ones
         if (visibleCount === 0) {
             console.log('🔧 No areas visible, loading central Auckland areas...');
-            
+
             ['city-centre', 'waterfront'].forEach((areaId, index) => {
                 const area = aucklandAreas[areaId];
                 if (area && !loadedAreas.has(areaId)) {
@@ -519,12 +528,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-            
+
             statusMessage.innerHTML = '✨ Central Auckland areas loaded!';
             statusMessage.style.color = '#27ae60';
         }
     }
-    
+
     /**
      * Handle map movement and trigger dynamic area loading
      */
@@ -533,41 +542,41 @@ document.addEventListener('DOMContentLoaded', function() {
             loadAreasInView();
         }
     }
-    
+
     /**
      * Load areas that come into view with animation
      */
     function loadAreasInView() {
         const bounds = map.getBounds();
         let newAreasLoaded = 0;
-        
+
         console.log('🔍 Checking areas in view...', bounds);
-        
+
         areaMarkers.forEach((markerData, index) => {
             const { marker, area } = markerData;
             const markerLatLng = marker.getLatLng();
-            
+
             // Check if area is in current bounds and not already loaded
             if (bounds.contains(markerLatLng) && !loadedAreas.has(area.id)) {
                 console.log(`📍 Loading area: ${area.name}`);
-                
+
                 // Mark as loaded
                 loadedAreas.add(area.id);
                 newAreasLoaded++;
-                
+
                 // Add loading animation with staggered delay
                 setTimeout(() => {
                     animateAreaLoad(marker, area);
                 }, index * 200);
             }
         });
-        
+
         // Show loading status if new areas were loaded
         if (newAreasLoaded > 0) {
             showLoadingStatus(newAreasLoaded, 'area');
         }
     }
-    
+
     /**
      * Animate area appearing with loading effect
      */
@@ -577,22 +586,22 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('❌ Area marker element not found for:', area.name);
             return;
         }
-        
+
         console.log(`🎬 Animating area: ${area.name}`);
-        
+
         // Enable pointer events
         markerElement.style.pointerEvents = 'auto';
-        
+
         // Start with marker hidden
         markerElement.style.opacity = '0';
         markerElement.style.transform = 'scale(0)';
         markerElement.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-        
+
         // Final reveal
         setTimeout(() => {
             markerElement.style.opacity = '1';
             markerElement.style.transform = 'scale(1)';
-            
+
             // Add bounce effect
             setTimeout(() => {
                 markerElement.style.animation = 'markerBounce 0.6s ease-out';
@@ -600,11 +609,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     markerElement.style.animation = '';
                 }, 600);
             }, 100);
-            
+
             console.log(`✅ Loaded area: ${area.name}`);
         }, 300);
     }
-    
+
     /**
      * Show loading status message
      */
@@ -614,13 +623,13 @@ document.addEventListener('DOMContentLoaded', function() {
         statusMessage.innerHTML = loadingMessage;
         statusMessage.style.color = '#3498db';
         statusMessage.classList.add('loading');
-        
+
         // Clear loading message after animation completes
         setTimeout(() => {
             statusMessage.innerHTML = `✨ ${count} new ${itemName}${count === 1 ? '' : 's'} discovered!`;
             statusMessage.style.color = '#27ae60';
             statusMessage.classList.remove('loading');
-            
+
             // Reset to default message after a delay
             setTimeout(() => {
                 statusMessage.innerHTML = 'Explore Auckland areas to discover memories! 📍✨';
@@ -628,7 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2000);
         }, 1500);
     }
-    
+
     /**
      * Handle map clicks for adding new photos
      */
@@ -636,22 +645,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const { lat, lng } = e.latlng;
         showAddPhotoForm(lat, lng);
     }
-    
+
     // ==============================================================
     // TIMELINE/LIST VIEW MANAGEMENT
     // ==============================================================
-    
+
     /**
      * Update timeline view based on current state
      */
     function updateTimelineView() {
         timeline.innerHTML = '';
-        
+
         if (currentExpandedArea) {
             // Show photos from expanded area
             const photosInArea = mockPhotos.filter(photo => photo.area === currentExpandedArea);
             const area = aucklandAreas[currentExpandedArea];
-            
+
             // Add area header
             const areaHeader = document.createElement('div');
             areaHeader.className = 'area-header';
@@ -661,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="photo-count">${photosInArea.length} memories</div>
             `;
             timeline.appendChild(areaHeader);
-            
+
             // Add photos
             displayPhotosInTimeline(photosInArea);
         } else {
@@ -669,7 +678,7 @@ document.addEventListener('DOMContentLoaded', function() {
             displayAreasInTimeline();
         }
     }
-    
+
     /**
      * Display areas as categories in timeline
      */
@@ -679,7 +688,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const markerLatLng = markerData.marker.getLatLng();
             return bounds.contains(markerLatLng) && loadedAreas.has(markerData.area.id);
         });
-        
+
         if (visibleAreas.length === 0) {
             const noAreasMsg = document.createElement('div');
             noAreasMsg.className = 'placeholder-message';
@@ -687,11 +696,11 @@ document.addEventListener('DOMContentLoaded', function() {
             timeline.appendChild(noAreasMsg);
             return;
         }
-        
+
         visibleAreas.forEach(markerData => {
             const area = markerData.area;
             const photosInArea = mockPhotos.filter(photo => photo.area === area.id);
-            
+
             const areaCard = document.createElement('div');
             areaCard.className = 'area-card';
             areaCard.innerHTML = `
@@ -704,7 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             `;
-            
+
             areaCard.addEventListener('click', () => {
                 // Switch back to map and expand this area
                 if (currentView === 'timeline') {
@@ -714,11 +723,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     toggleAreaExpansion(area.id);
                 }, 300);
             });
-            
+
             timeline.appendChild(areaCard);
         });
     }
-    
+
     /**
      * Display photos in timeline view
      */
@@ -730,20 +739,20 @@ document.addEventListener('DOMContentLoaded', function() {
             timeline.appendChild(noPhotosMsg);
             return;
         }
-        
+
         // Sort photos by date
         photos.sort((a, b) => new Date(a.date) - new Date(b.date));
-        
+
         photos.forEach(photo => {
             const card = createPolaroidCard(photo);
             timeline.appendChild(card);
         });
     }
-    
+
     // ==============================================================
     // PHOTO DETAILS AND ADDITION
     // ==============================================================
-    
+
     /**
      * Show photo details in the mobile-friendly info panel
      */
@@ -760,11 +769,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
-        
+
         panelContent.innerHTML = polaroidHTML;
         infoPanel.classList.remove('hidden');
     }
-    
+
     /**
      * Show add photo form
      */
@@ -804,10 +813,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </form>
             </div>
         `;
-        
+
         panelContent.innerHTML = formHTML;
         infoPanel.classList.remove('hidden');
-        
+
         // Add form submit handler
         document.getElementById('photoForm').addEventListener('submit', handleAddPhoto);
         
@@ -845,7 +854,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fileInfoDiv.style.color = '#27ae60';
         });
     }
-    
+
     /**
      * Handle adding a new photo
      */
@@ -946,26 +955,27 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         reader.readAsDataURL(file);
+
     }
-    
+
     /**
      * Hide the photo details panel
      */
     function hidePhotoDetails() {
         infoPanel.classList.add('hidden');
     }
-    
+
     /**
      * Hide add photo form (global function for cancel button)
      */
-    window.hideAddPhotoForm = function() {
+    window.hideAddPhotoForm = function () {
         hidePhotoDetails();
     }
-    
+
     // ==============================================================
     // UTILITY FUNCTIONS
     // ==============================================================
-    
+
     /**
      * Calculate distance between two coordinates
      */
@@ -974,7 +984,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const lonDiff = Math.abs(lon1 - lon2);
         return Math.sqrt(latDiff * latDiff + lonDiff * lonDiff);
     }
-    
+
     /**
      * Create Polaroid card for timeline view
      */
@@ -982,44 +992,44 @@ document.addEventListener('DOMContentLoaded', function() {
         const card = document.createElement('div');
         card.className = 'polaroid-card';
         card.addEventListener('click', () => showPhotoDetails(photo));
-        
+
         const photoContainer = document.createElement('div');
         photoContainer.className = 'photo-container';
-        
+
         const img = document.createElement('img');
         img.src = photo.url;
         img.alt = photo.description;
         img.className = 'polaroid-photo';
-        
+
         const metadata = document.createElement('div');
         metadata.className = 'photo-metadata';
-        
+
         const dateDiv = document.createElement('div');
         dateDiv.className = 'photo-date';
         dateDiv.textContent = photo.date;
-        
+
         const locationDiv = document.createElement('div');
         locationDiv.className = 'photo-location';
         locationDiv.textContent = photo.location;
-        
+
         photoContainer.appendChild(img);
         metadata.appendChild(dateDiv);
         metadata.appendChild(locationDiv);
         card.appendChild(photoContainer);
         card.appendChild(metadata);
-        
+
         return card;
     }
-    
+
     /**
      * Filter photos by user location (for geolocation feature)
      */
     function filterNearbyPhotos(userLoc) {
         const RADIUS = 0.05; // Smaller radius for Auckland
-        
+
         return mockPhotos.filter(photo => {
             const distance = calculateDistance(
-                userLoc.latitude, 
+                userLoc.latitude,
                 userLoc.longitude,
                 photo.latitude,
                 photo.longitude
@@ -1027,11 +1037,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return distance <= RADIUS;
         });
     }
-    
+
     // ==============================================================
     // GEOLOCATION AND USER INTERACTION
     // ==============================================================
-    
+
     /**
      * Handle successful geolocation
      */
@@ -1040,78 +1050,152 @@ document.addEventListener('DOMContentLoaded', function() {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
         };
-        
+
         console.log('User location:', userLocation);
-        
-        // Center map on user location
-        if (map) {
-            map.setView([userLocation.latitude, userLocation.longitude], 14);
-            
-            // Add user location marker
-            const userIcon = L.divIcon({
-                html: `<div class="user-marker">👤</div>`,
-                className: 'custom-user-marker',
-                iconSize: [40, 40],
-                iconAnchor: [20, 40]
-            });
-            
-            L.marker([userLocation.latitude, userLocation.longitude], {
-                icon: userIcon,
-                title: 'You are here!'
-            }).addTo(map);
-        }
-        
-        // Filter nearby photos and find relevant areas
-        const nearbyPhotos = filterNearbyPhotos(userLocation);
-        const nearbyAreas = new Set(nearbyPhotos.map(photo => photo.area));
-        
-        statusMessage.innerHTML = `✨ Found your location! ${nearbyPhotos.length} memories in ${nearbyAreas.size} areas nearby.`;
-        statusMessage.style.color = '#27ae60';
-        findMeBtn.textContent = '📍 FIND ME';
-        findMeBtn.disabled = false;
+
+        // Update landing page status
+        landingStatus.innerHTML = '✨ Location found! Loading map...';
+
+        // Hide landing page and show main app after a brief delay
+        setTimeout(() => {
+            landingPage.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+
+            // Initialize and setup map after transition
+            setTimeout(() => {
+                // Invalidate map size to ensure proper rendering
+                if (map) {
+                    map.invalidateSize();
+                    // Center map on user location with animation
+                    map.setView([userLocation.latitude, userLocation.longitude], 14, {
+                        animate: true,
+                        duration: 1.5
+                    });
+
+                    // Add user location marker
+                    addUserLocationMarker();
+                }
+
+                // Filter nearby photos and find relevant areas
+                const nearbyPhotos = filterNearbyPhotos(userLocation);
+                const nearbyAreas = new Set(nearbyPhotos.map(photo => photo.area));
+
+                statusMessage.innerHTML = `✨ Found your location! ${nearbyPhotos.length} memories in ${nearbyAreas.size} areas nearby.`;
+                statusMessage.style.color = '#27ae60';
+                findMeBtn.textContent = '📍 FIND ME';
+                findMeBtn.disabled = false;
+            }, 200);
+        }, 1000);
     }
-    
+
+    /**
+     * Add user location marker with animation
+     */
+    function addUserLocationMarker() {
+        if (!userLocation || !map) return;
+
+        // Remove existing user marker if any
+        if (window.userMarker) {
+            map.removeLayer(window.userMarker);
+        }
+
+        // Create animated user icon with accuracy info
+        const accuracyText = userLocation.accuracy ?
+            `<div class="accuracy-text">±${Math.round(userLocation.accuracy)}m</div>` : '';
+
+        const userIcon = L.divIcon({
+            html: `<div class="user-marker">👤${accuracyText}</div>`,
+            className: 'custom-user-marker',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40]
+        });
+
+        // Add marker with entrance animation
+        window.userMarker = L.marker([userLocation.latitude, userLocation.longitude], {
+            icon: userIcon,
+            title: `You are here! ${userLocation.accuracy ? `(±${Math.round(userLocation.accuracy)}m accuracy)` : ''}`
+        }).addTo(map);
+
+        // Animate marker entrance
+        setTimeout(() => {
+            const markerElement = window.userMarker.getElement();
+            if (markerElement) {
+                markerElement.style.opacity = '0';
+                markerElement.style.transform = 'scale(0)';
+                markerElement.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+
+                setTimeout(() => {
+                    markerElement.style.opacity = '1';
+                    markerElement.style.transform = 'scale(1)';
+                }, 100);
+            }
+        }, 300);
+    }
+
     /**
      * Handle geolocation errors
      */
     function onLocationError(error) {
         console.error('Geolocation error:', error);
-        
+
         let errorMessage = '';
-        switch(error.code) {
+        switch (error.code) {
             case error.PERMISSION_DENIED:
-                errorMessage = '❌ Location access denied. Using Auckland Central.';
+                errorMessage = '❌ Location access denied.';
                 break;
             case error.POSITION_UNAVAILABLE:
-                errorMessage = '❌ Location unavailable. Using Auckland Central.';
+                errorMessage = '❌ Location unavailable.';
                 break;
             case error.TIMEOUT:
-                errorMessage = '❌ Location timeout. Using Auckland Central.';
+                errorMessage = '❌ Location timeout.';
                 break;
             default:
-                errorMessage = '❌ Location error. Using Auckland Central.';
+                errorMessage = '❌ Location error.';
                 break;
         }
-        
+
+        // Update landing page with error and transition to main app
+        if (landingPage && !landingPage.classList.contains('hidden')) {
+            landingStatus.innerHTML = `${errorMessage}<br/>🇳🇿 Loading Auckland map...`;
+
+            // Hide landing page and show main app after error message
+            setTimeout(() => {
+                landingPage.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+
+                // Ensure map renders properly after transition
+                setTimeout(() => {
+                    if (map) {
+                        console.log('🔧 Invalidating map size after error transition');
+                        map.invalidateSize();
+                        // Center on Auckland with animation
+                        map.setView([-36.8485, 174.7633], 12, {
+                            animate: true,
+                            duration: 1.0
+                        });
+                    }
+                }, 200);
+            }, 2000);
+        }
+
+        // Set error message in main app
         statusMessage.innerHTML = errorMessage;
         statusMessage.style.color = '#e74c3c';
         findMeBtn.textContent = '📍 FIND ME';
         findMeBtn.disabled = false;
-        
+
         setTimeout(() => {
             statusMessage.innerHTML += '<br/>🇳🇿 Showing Auckland area clusters.';
         }, 1000);
     }
-    
+
     /**
-     * Get user's current location
+     * Get user's current location for initial landing page
      */
-    function getCurrentLocation() {
-        statusMessage.innerHTML = '📍 Finding your location...';
-        statusMessage.className = 'status-message loading';
-        findMeBtn.textContent = '📍 SEARCHING...';
-        findMeBtn.disabled = true;
-        
+    function getInitialLocation() {
+        console.log('� Getting initial location for landing page...');
+        landingStatus.innerHTML = '📍 Finding your location...';
+
         if (!navigator.geolocation) {
             onLocationError({
                 code: 'NOT_SUPPORTED',
@@ -1119,20 +1203,99 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             return;
         }
-        
+
+        // More lenient settings for initial load
         const options = {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 300000
+            maximumAge: 300000 // Allow 5-minute cache for initial load
         };
-        
+
+        console.log('🎯 Initial location options:', options);
+
         navigator.geolocation.getCurrentPosition(
             onLocationSuccess,
             onLocationError,
             options
         );
     }
-    
+
+    /**
+     * Get user's current location for Find Me button (high accuracy)
+     */
+    function getCurrentLocation() {
+        console.log('🔍 Getting precise location for Find Me...');
+
+        // Update main app status
+        statusMessage.innerHTML = '📍 Finding your precise location...';
+        statusMessage.className = 'status-message loading';
+        findMeBtn.textContent = '📍 SEARCHING...';
+        findMeBtn.disabled = true;
+
+        if (!navigator.geolocation) {
+            onLocationError({
+                code: 'NOT_SUPPORTED',
+                message: 'Geolocation not supported'
+            });
+            return;
+        }
+
+        // High accuracy settings for manual requests
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 20000, // Longer timeout for better accuracy
+            maximumAge: 0 // Force fresh location reading
+        };
+
+        console.log('🎯 Find Me location options:', options);
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log('✅ Precise location found:', position);
+
+                // Update user location with fresh data
+                userLocation = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy
+                };
+
+                console.log(`📍 Location accuracy: ${position.coords.accuracy} meters`);
+
+                // Animate map to user location with higher zoom
+                if (map) {
+                    map.setView([userLocation.latitude, userLocation.longitude], 17, {
+                        animate: true,
+                        duration: 2.0
+                    });
+
+                    // Add/update user marker
+                    addUserLocationMarker();
+
+                    // Update status with accuracy info
+                    const nearbyPhotos = filterNearbyPhotos(userLocation);
+                    const nearbyAreas = new Set(nearbyPhotos.map(photo => photo.area));
+                    const accuracyText = position.coords.accuracy < 100 ?
+                        `(±${Math.round(position.coords.accuracy)}m accuracy)` : '';
+
+                    statusMessage.innerHTML = `✨ Found your precise location! ${accuracyText}<br/>${nearbyPhotos.length} memories in ${nearbyAreas.size} areas nearby.`;
+                    statusMessage.style.color = '#27ae60';
+                }
+
+                findMeBtn.textContent = '📍 FIND ME';
+                findMeBtn.disabled = false;
+            },
+            (error) => {
+                console.error('❌ Find Me location error:', error);
+                statusMessage.innerHTML = '❌ Could not get precise location. Try again.';
+                statusMessage.style.color = '#e74c3c';
+                findMeBtn.textContent = '📍 FIND ME';
+                findMeBtn.disabled = false;
+            },
+            options
+        );
+    }
+
     /**
      * Toggle between map and timeline views
      */
@@ -1143,17 +1306,17 @@ document.addEventListener('DOMContentLoaded', function() {
             mapElement.parentElement.classList.add('hidden');
             timelineView.classList.remove('hidden');
             toggleViewBtn.textContent = '🗺️ MAP VIEW';
-            
+
             // Update timeline based on current state
             updateTimelineView();
-            
+
         } else {
             // Switch to map view
             currentView = 'map';
             mapElement.parentElement.classList.remove('hidden');
             timelineView.classList.add('hidden');
             toggleViewBtn.textContent = '📋 LIST VIEW';
-            
+
             // Refresh map if needed
             if (map) {
                 setTimeout(() => {
@@ -1161,54 +1324,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 100);
             }
         }
-        
+
         hidePhotoDetails(); // Close any open panels
     }
-    
+
     // ==============================================================
     // EVENT LISTENERS
     // ==============================================================
-    
+
     // Find Me button
     findMeBtn.addEventListener('click', getCurrentLocation);
-    
+
     // Toggle View button
     toggleViewBtn.addEventListener('click', toggleView);
-    
+
     // Close panel button
     closePanelBtn.addEventListener('click', hidePhotoDetails);
-    
+
     // Close panel when clicking outside (for mobile)
-    infoPanel.addEventListener('click', function(e) {
+    infoPanel.addEventListener('click', function (e) {
         if (e.target === infoPanel) {
             hidePhotoDetails();
         }
     });
-    
+
     // Handle device orientation changes
-    window.addEventListener('orientationchange', function() {
+    window.addEventListener('orientationchange', function () {
         setTimeout(() => {
             if (map && currentView === 'map') {
                 map.invalidateSize();
             }
         }, 500);
     });
-    
+
     // ==============================================================
     // INITIALIZATION
     // ==============================================================
-    
-    // Initialize the map
+
+    // Initialize the map (but it will be invisible until main app shows)
     initializeMap();
     
     // Automatically get user location on page load
     getCurrentLocation();
     
+
+    // Set initial status
+    statusMessage.innerHTML = 'Click area pins to explore memories! 📍 Use list view to browse areas.';
+    statusMessage.style.color = '#7f8c8d';
+
     // Add some mobile-specific touches
     if ('ontouchstart' in window) {
         document.body.classList.add('touch-device');
         console.log('📱 Touch device detected - mobile optimizations active');
     }
-    
+
+    // Automatically trigger initial geolocation on page load
+    setTimeout(() => {
+        console.log('🚀 Auto-triggering initial geolocation...');
+        getInitialLocation();
+    }, 1000); // Increased delay to ensure map is ready
+
     console.log('🇳🇿 Memory Map initialized for Auckland with area clustering! Ready for exploration.');
 }); 
