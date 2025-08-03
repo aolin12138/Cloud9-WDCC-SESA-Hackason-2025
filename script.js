@@ -145,7 +145,28 @@ document.addEventListener("DOMContentLoaded", function () {
             location: "Taupo, New Zealand",
             description: "Lake Taupo adventures! Perfect spot for relaxation and water sports. 🏊‍♂️",
             isUser: true
+        },
+        {
+            id: 211,
+            url: "images/alvin1.jpg", // Local image for demo
+            latitude: -36.934370, // Auckland, New Zealand
+            longitude: 174.915984,
+            date: "2020-07-08",
+            location: "Botany Downs Secondary College",
+            description: "Significant memories during lock-down in high school! Recieved a trophy!",
+            isUser: true
+        },
+        {
+            id: 212,
+            url: "images/alvin2.jpg", // Local image for demo
+            latitude: -36.934370, // Auckland, New Zealand
+            longitude: 174.915984,
+            date: "2023-07-08",
+            location: "Botany Downs Secondary College",
+            description: "Finally graduated from high school! So many memories with friends. Significant moment for me",
+            isUser: true
         }
+
     ];
 
     // SET A: Adventure & Outdoor Explorer Group - More scattered around Auckland Central
