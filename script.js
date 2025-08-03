@@ -1748,9 +1748,6 @@ document.addEventListener("DOMContentLoaded", function () {
             refreshBtn.disabled = false;
 
             console.log("✅ Data refresh complete!");
-
-            // Show toast message
-            showToastMessage(`🔄 Refreshed! Showing Set ${currentDataSet} stories`);
         }, 500);
     }
 
@@ -1771,6 +1768,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function setupSidebarNavigation() {
         // Stories toggle functionality
         const storiesToggle = document.getElementById("storiesToggle");
+        console.log("📍 Stories toggle button found:", storiesToggle);
         if (storiesToggle) {
             storiesToggle.addEventListener("click", function () {
                 console.log("🔄 Filter toggle clicked");
@@ -1779,13 +1777,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Toggle between all stories and user stories
                 if (currentFilter === "all") {
                     currentFilter = "user";
-                    storiesToggle.querySelector(".nav-icon").textContent = "👤";
-                    storiesToggle.querySelector(".nav-text").textContent = "Your Stories";
+                    const toggleIcon = storiesToggle.querySelector(".toggle-icon");
+                    if (toggleIcon) {
+                        toggleIcon.textContent = "👤";
+                    }
+                    storiesToggle.classList.add("user-mode");
                     console.log("📱 Switched to user stories only");
                 } else {
                     currentFilter = "all";
-                    storiesToggle.querySelector(".nav-icon").textContent = "📷";
-                    storiesToggle.querySelector(".nav-text").textContent = "All Stories";
+                    const toggleIcon = storiesToggle.querySelector(".toggle-icon");
+                    if (toggleIcon) {
+                        toggleIcon.textContent = "📷";
+                    }
+                    storiesToggle.classList.remove("user-mode");
                     console.log("🌍 Switched to all stories");
                 }
 
@@ -1817,10 +1821,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Show helpful message
                 showToastMessage(
                     currentFilter === "user"
-                        ? `📱 Showing only your stories (${userPhotos.length} memories)`
-                        : `🌍 Showing all stories (${mockPhotos.length} memories)`
+                        ? `📱 Showing your memories`
+                        : `🌍 Showing public memories`
                 );
             });
+        } else {
+            console.error("❌ Stories toggle button not found!");
         }
 
         // Profile button
