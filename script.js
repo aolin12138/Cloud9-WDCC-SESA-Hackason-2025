@@ -40,9 +40,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let photoIdCounter = 300; // Start from 300 for new photos (demo user photos use 201-205)
     let currentFilter = "all"; // 'all' or 'user' - tracks what stories to show
 
-    // ==============================================================
-    // PHOTO DATA
-    // ==============================================================
+    // Friends data
+    let friends = [
+        {
+            id: 1,
+            name: "Alvin Wong",
+            avatar: "👩‍💻",
+            status: "online",
+            lastSeen: "2 minutes ago",
+        },
+        {
+            id: 2,
+            name: "Mike Johnson",
+            avatar: "👨‍🎨",
+            status: "offline",
+            lastSeen: "1 hour ago",
+        },
+    ];
 
     // User's own photos (locally created) - scattered across different countries for travel theme
     const userPhotos = [
@@ -168,6 +182,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
     ];
+    // ==============================================================
+    // PHOTO DATA
+    // ==============================================================
 
     // SET A: Adventure & Outdoor Explorer Group - More scattered around Auckland Central
     const demoPhotosSetA = [
@@ -179,9 +196,10 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7633,
             date: "2024-12-15",
             location: "Sky Tower",
-            description: "Time has flown since I first visited Auckland! The Sky Tower is still iconic.",
+            description:
+                "Time has flown since I first visited Auckland! The Sky Tower is still iconic.",
             isUser: false,
-            clusterId: "cluster1"
+            clusterId: "cluster1",
         },
         {
             id: 2,
@@ -190,9 +208,10 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7628,
             date: "2008-12-10",
             location: "Sky Tower",
-            description: "Sky Tower is beautifully lit for Christmas! Auckland looks magical.",
+            description:
+                "Sky Tower is beautifully lit for Christmas! Auckland looks magical.",
             isUser: false,
-            clusterId: "cluster1"
+            clusterId: "cluster1",
         },
         {
             id: 3,
@@ -201,22 +220,24 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7638,
             date: "1995-04-19",
             location: "Sky tower",
-            description: "Sky Towing is building! Cant wait to see the finished tower!",
+            description:
+                "Sky Towing is building! Cant wait to see the finished tower!",
             isUser: false,
-            clusterId: "cluster1"
+            clusterId: "cluster1",
         },
 
         // CLUSTER 2: Western harbor area (3 photos clustered)
         {
             id: 4,
             url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop",
-            latitude: -36.8410,
-            longitude: 174.7520,
+            latitude: -36.841,
+            longitude: 174.752,
             date: "2024-12-11",
             location: "Viaduct Harbour",
-            description: "Waterfront dining at its finest! Love the harbor atmosphere.",
+            description:
+                "Waterfront dining at its finest! Love the harbor atmosphere.",
             isUser: false,
-            clusterId: "cluster2"
+            clusterId: "cluster2",
         },
         {
             id: 5,
@@ -227,7 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
             location: "Wynyard Quarter",
             description: "Coffee morning with harbor views. Perfect weekend spot!",
             isUser: false,
-            clusterId: "cluster2"
+            clusterId: "cluster2",
         },
         {
             id: 6,
@@ -236,22 +257,24 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7515,
             date: "2024-12-07",
             location: "Auckland Fish Market",
-            description: "Fresh seafood adventure! Best market experience in Auckland.",
+            description:
+                "Fresh seafood adventure! Best market experience in Auckland.",
             isUser: false,
-            clusterId: "cluster2"
+            clusterId: "cluster2",
         },
 
         // CLUSTER 3: Eastern heights area (3 photos clustered)
         {
             id: 7,
             url: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=300&fit=crop",
-            latitude: -36.8580,
-            longitude: 174.7780,
+            latitude: -36.858,
+            longitude: 174.778,
             date: "2024-12-06",
             location: "Parnell Rose Gardens",
-            description: "Beautiful rose gardens with city views. Perfect morning walk!",
+            description:
+                "Beautiful rose gardens with city views. Perfect morning walk!",
             isUser: false,
-            clusterId: "cluster3"
+            clusterId: "cluster3",
         },
         {
             id: 8,
@@ -262,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
             location: "Parnell Village",
             description: "Charming village atmosphere with boutique shops and cafes!",
             isUser: false,
-            clusterId: "cluster3"
+            clusterId: "cluster3",
         },
         {
             id: 9,
@@ -273,90 +296,95 @@ document.addEventListener("DOMContentLoaded", function () {
             location: "Cathedral of St Patrick",
             description: "Stunning architecture in the heart of Parnell district.",
             isUser: false,
-            clusterId: "cluster3"
+            clusterId: "cluster3",
         },
 
         // Additional individual scattered markers for more completeness
         {
             id: 10,
             url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-            latitude: -36.8600,
+            latitude: -36.86,
             longitude: 174.7595,
             date: "2024-12-03",
             location: "Auckland Domain",
             description: "Nature walk in the heart of the city. Such peaceful vibes!",
-            isUser: false
+            isUser: false,
         },
         {
             id: 21,
             url: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
-            latitude: -36.8420,
-            longitude: 174.7650,
+            latitude: -36.842,
+            longitude: 174.765,
             date: "2024-12-02",
             location: "Sky Tower Base",
-            description: "Looking up at Auckland's iconic landmark! Always impressive.",
-            isUser: false
+            description:
+                "Looking up at Auckland's iconic landmark! Always impressive.",
+            isUser: false,
         },
         {
             id: 22,
             url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop",
-            latitude: -36.8520,
-            longitude: 174.7680,
+            latitude: -36.852,
+            longitude: 174.768,
             date: "2024-12-01",
             location: "Newton Gully",
-            description: "Hidden urban trail right in the city! Great for morning jogs.",
-            isUser: false
+            description:
+                "Hidden urban trail right in the city! Great for morning jogs.",
+            isUser: false,
         },
         {
             id: 23,
             url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
-            latitude: -36.8450,
-            longitude: 174.7580,
+            latitude: -36.845,
+            longitude: 174.758,
             date: "2024-11-30",
             location: "Karangahape Road",
             description: "K Road vibes! Eclectic mix of culture and street art.",
-            isUser: false
+            isUser: false,
         },
         {
             id: 24,
             url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-            latitude: -36.8560,
-            longitude: 174.7720,
+            latitude: -36.856,
+            longitude: 174.772,
             date: "2024-11-29",
             location: "Grafton Bridge",
-            description: "Historic bridge with amazing valley views! Hidden gem for photos.",
-            isUser: false
+            description:
+                "Historic bridge with amazing valley views! Hidden gem for photos.",
+            isUser: false,
         },
         {
             id: 25,
             url: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=300&fit=crop",
-            latitude: -36.8420,
-            longitude: 174.7610,
+            latitude: -36.842,
+            longitude: 174.761,
             date: "2024-11-28",
             location: "Myers Park",
-            description: "Secret garden in the city! Perfect spot for a quiet lunch break.",
-            isUser: false
+            description:
+                "Secret garden in the city! Perfect spot for a quiet lunch break.",
+            isUser: false,
         },
         {
             id: 26,
             url: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=400&h=300&fit=crop",
-            latitude: -36.8380,
-            longitude: 174.7550,
+            latitude: -36.838,
+            longitude: 174.755,
             date: "2024-11-27",
             location: "Freeman's Bay",
-            description: "Waterfront living at its best! Love the harbor views from here.",
-            isUser: false
+            description:
+                "Waterfront living at its best! Love the harbor views from here.",
+            isUser: false,
         },
         {
             id: 27,
             url: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&h=300&fit=crop",
-            latitude: -36.8530,
-            longitude: 174.7620,
+            latitude: -36.853,
+            longitude: 174.762,
             date: "2024-11-26",
             location: "Western Park",
             description: "Family-friendly park with playground and walking tracks!",
-            isUser: false
-        }
+            isUser: false,
+        },
     ];
 
     // SET B: Foodie & Culture Group - More scattered around Auckland Central
@@ -365,13 +393,14 @@ document.addEventListener("DOMContentLoaded", function () {
         {
             id: 11,
             url: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop",
-            latitude: -36.8420,
-            longitude: 174.7480,
+            latitude: -36.842,
+            longitude: 174.748,
             date: "2024-11-28",
             location: "Ponsonby Road",
-            description: "Brunch goals! This cafe does the best avocado toast in Auckland.",
+            description:
+                "Brunch goals! This cafe does the best avocado toast in Auckland.",
             isUser: false,
-            clusterId: "cluster4"
+            clusterId: "cluster4",
         },
         {
             id: 12,
@@ -382,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
             location: "Ponsonby Central",
             description: "Food court heaven! So many delicious options in one place.",
             isUser: false,
-            clusterId: "cluster4"
+            clusterId: "cluster4",
         },
         {
             id: 13,
@@ -391,22 +420,24 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7475,
             date: "2024-11-30",
             location: "Three Lamps",
-            description: "Weekend market vibes! Local vendors and great community feel.",
+            description:
+                "Weekend market vibes! Local vendors and great community feel.",
             isUser: false,
-            clusterId: "cluster4"
+            clusterId: "cluster4",
         },
 
         // CLUSTER 2: Southern Newmarket area (3 photos clustered)
         {
             id: 14,
             url: "https://images.unsplash.com/photo-1481833761820-0509d3217039?w=400&h=300&fit=crop",
-            latitude: -36.8650,
-            longitude: 174.7750,
+            latitude: -36.865,
+            longitude: 174.775,
             date: "2024-11-25",
             location: "Newmarket",
-            description: "Shopping district with great cafes! Love the bustling atmosphere.",
+            description:
+                "Shopping district with great cafes! Love the bustling atmosphere.",
             isUser: false,
-            clusterId: "cluster5"
+            clusterId: "cluster5",
         },
         {
             id: 15,
@@ -415,9 +446,10 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7755,
             date: "2024-11-26",
             location: "Broadway Newmarket",
-            description: "Fashion capital of Auckland! Amazing boutiques and eateries.",
+            description:
+                "Fashion capital of Auckland! Amazing boutiques and eateries.",
             isUser: false,
-            clusterId: "cluster5"
+            clusterId: "cluster5",
         },
         {
             id: 16,
@@ -426,22 +458,24 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7745,
             date: "2024-11-24",
             location: "Teed Street",
-            description: "Local food scene at its finest! Hidden culinary gems everywhere.",
+            description:
+                "Local food scene at its finest! Hidden culinary gems everywhere.",
             isUser: false,
-            clusterId: "cluster5"
+            clusterId: "cluster5",
         },
 
         // CLUSTER 3: Western Grey Lynn area (3 photos clustered)
         {
             id: 17,
             url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
-            latitude: -36.8380,
-            longitude: 174.7420,
+            latitude: -36.838,
+            longitude: 174.742,
             date: "2024-11-22",
             location: "Grey Lynn Park",
-            description: "Community vibes and weekend markets! Love this local atmosphere.",
+            description:
+                "Community vibes and weekend markets! Love this local atmosphere.",
             isUser: false,
-            clusterId: "cluster6"
+            clusterId: "cluster6",
         },
         {
             id: 18,
@@ -452,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
             location: "Richmond Road",
             description: "Authentic local eateries and cozy neighborhood cafes!",
             isUser: false,
-            clusterId: "cluster6"
+            clusterId: "cluster6",
         },
         {
             id: 19,
@@ -461,132 +495,143 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7415,
             date: "2024-11-18",
             location: "Great North Road",
-            description: "Cultural diversity in food! Every cuisine imaginable within walking distance.",
+            description:
+                "Cultural diversity in food! Every cuisine imaginable within walking distance.",
             isUser: false,
-            clusterId: "cluster6"
+            clusterId: "cluster6",
         },
 
         // Individual scattered markers for more completeness
         {
             id: 20,
             url: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=400&h=300&fit=crop",
-            latitude: -36.8540,
-            longitude: 174.7620,
+            latitude: -36.854,
+            longitude: 174.762,
             date: "2024-11-15",
             location: "K Road Cultural Quarter",
-            description: "Eclectic mix of culture, art galleries, and amazing street food!",
-            isUser: false
+            description:
+                "Eclectic mix of culture, art galleries, and amazing street food!",
+            isUser: false,
         },
         {
             id: 28,
             url: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop",
-            latitude: -36.8400,
-            longitude: 174.7700,
+            latitude: -36.84,
+            longitude: 174.77,
             date: "2024-11-14",
             location: "Eden Park Area",
-            description: "Pre-game festivities! Love the rugby atmosphere in Auckland.",
-            isUser: false
+            description:
+                "Pre-game festivities! Love the rugby atmosphere in Auckland.",
+            isUser: false,
         },
         {
             id: 29,
             url: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&h=300&fit=crop",
-            latitude: -36.8580,
-            longitude: 174.7480,
+            latitude: -36.858,
+            longitude: 174.748,
             date: "2024-11-13",
             location: "Mt Eden Village",
-            description: "Local cafe culture and village vibes! Perfect morning coffee spot.",
-            isUser: false
+            description:
+                "Local cafe culture and village vibes! Perfect morning coffee spot.",
+            isUser: false,
         },
         {
             id: 30,
             url: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=300&fit=crop",
-            latitude: -36.8420,
-            longitude: 174.7620,
+            latitude: -36.842,
+            longitude: 174.762,
             date: "2024-11-12",
             location: "Takapuna Ferry Terminal",
-            description: "Ferry ride across the harbor! Best way to see Auckland from water.",
-            isUser: false
+            description:
+                "Ferry ride across the harbor! Best way to see Auckland from water.",
+            isUser: false,
         },
         {
             id: 31,
             url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop",
-            latitude: -36.8620,
-            longitude: 174.7540,
+            latitude: -36.862,
+            longitude: 174.754,
             date: "2024-11-11",
             location: "One Tree Hill",
-            description: "Hiking with panoramic city views! Auckland's natural beauty shines.",
-            isUser: false
+            description:
+                "Hiking with panoramic city views! Auckland's natural beauty shines.",
+            isUser: false,
         },
         {
             id: 32,
             url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
-            latitude: -36.8440,
-            longitude: 174.7750,
+            latitude: -36.844,
+            longitude: 174.775,
             date: "2024-11-10",
             location: "Newmarket Park",
             description: "Family BBQ in the park! Love Auckland's outdoor lifestyle.",
-            isUser: false
+            isUser: false,
         },
         {
             id: 33,
             url: "https://images.unsplash.com/photo-1516714819001-8ee7a13b71d7?w=400&h=300&fit=crop",
-            latitude: -36.8430,
-            longitude: 174.7480,
+            latitude: -36.843,
+            longitude: 174.748,
             date: "2024-11-09",
             location: "Herne Bay",
-            description: "Coastal walk with luxury neighborhood views! Hidden beach gems.",
-            isUser: false
+            description:
+                "Coastal walk with luxury neighborhood views! Hidden beach gems.",
+            isUser: false,
         },
         {
             id: 34,
             url: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop",
-            latitude: -36.8550,
-            longitude: 174.7650,
+            latitude: -36.855,
+            longitude: 174.765,
             date: "2024-11-08",
             location: "Victoria Park",
-            description: "City park with playground and walking tracks! Perfect family day out.",
-            isUser: false
+            description:
+                "City park with playground and walking tracks! Perfect family day out.",
+            isUser: false,
         },
         {
             id: 35,
             url: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop",
-            latitude: -36.8390,
-            longitude: 174.7570,
+            latitude: -36.839,
+            longitude: 174.757,
             date: "2024-11-07",
             location: "Freemans Bay Park",
-            description: "Waterfront park with sailing club views! Love the maritime culture.",
-            isUser: false
+            description:
+                "Waterfront park with sailing club views! Love the maritime culture.",
+            isUser: false,
         },
         {
             id: 36,
             url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
-            latitude: -36.8470,
-            longitude: 174.7590,
+            latitude: -36.847,
+            longitude: 174.759,
             date: "2024-11-06",
             location: "Albert Park",
-            description: "University area with beautiful gardens! Perfect study break location.",
-            isUser: false
+            description:
+                "University area with beautiful gardens! Perfect study break location.",
+            isUser: false,
         },
         {
             id: 37,
             url: "https://images.unsplash.com/photo-1481833761820-0509d3217039?w=400&h=300&fit=crop",
-            latitude: -36.8510,
-            longitude: 174.7730,
+            latitude: -36.851,
+            longitude: 174.773,
             date: "2024-11-05",
             location: "Carlton Gore Road",
-            description: "Art gallery district! So much culture and creativity in one area.",
-            isUser: false
+            description:
+                "Art gallery district! So much culture and creativity in one area.",
+            isUser: false,
         },
         {
             id: 38,
             url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop",
-            latitude: -36.8420,
-            longitude: 174.7520,
+            latitude: -36.842,
+            longitude: 174.752,
             date: "2024-11-04",
             location: "Victoria Street West",
             description: "Asian food district! Authentic flavors from across Asia.",
-            isUser: false
-        }
+            isUser: false,
+        },
     ];
 
     // Combined demo photos from both sets
@@ -703,11 +748,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Add cluster groups to clusters array and mark as processed
-        Object.values(clusterGroups).forEach(group => {
+        Object.values(clusterGroups).forEach((group) => {
             if (group.length > 0) {
-                const cluster = group.map(item => item.photo);
+                const cluster = group.map((item) => item.photo);
                 clusters.push(cluster);
-                group.forEach(item => processed.add(item.index));
+                group.forEach((item) => processed.add(item.index));
             }
         });
 
@@ -766,7 +811,7 @@ document.addEventListener("DOMContentLoaded", function () {
             photosToShow = userPhotos;
         } else {
             // Show only public photos (exclude user photos)
-            photosToShow = mockPhotos.filter(photo => !photo.isUser);
+            photosToShow = mockPhotos.filter((photo) => !photo.isUser);
         }
 
         console.log("Photos to show:", photosToShow.length);
@@ -1342,6 +1387,153 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==============================================================
+    // FRIENDS MODAL FUNCTIONS
+    // ==============================================================
+
+    /**
+     * Show friends modal
+     */
+    function showFriendsModal() {
+        const friendsModal = document.getElementById("friendsModal");
+        if (friendsModal) {
+            friendsModal.classList.remove("hidden");
+            renderFriendsList();
+            updateFriendsBadge();
+        }
+    }
+
+    /**
+     * Hide friends modal
+     */
+    function hideFriendsModal() {
+        const friendsModal = document.getElementById("friendsModal");
+        if (friendsModal) {
+            friendsModal.classList.add("hidden");
+        }
+    }
+
+    /**
+     * Render friends list in the modal
+     */
+    function renderFriendsList() {
+        const friendsList = document.getElementById("friendsList");
+        if (!friendsList) return;
+
+        if (friends.length === 0) {
+            friendsList.innerHTML = `
+        <div class="no-friends-message">
+          No friends yet. Add some friends to start sharing memories!
+        </div>
+      `;
+            return;
+        }
+
+        friendsList.innerHTML = friends
+            .map(
+                (friend) => `
+      <div class="friend-item" data-friend-id="${friend.id}">
+        <div class="friend-avatar">
+          ${friend.avatar}
+        </div>
+        <div class="friend-info">
+          <div class="friend-name">${friend.name}</div>
+          <div class="friend-status ${friend.status}">
+            ${friend.status === "online" ? "🟢 Online" : `🔴 ${friend.lastSeen}`
+                    }
+          </div>
+        </div>
+        <div class="friend-actions">
+          <button class="friend-action-btn" onclick="viewFriendProfile(${friend.id
+                    })">👁️</button>
+          <button class="friend-action-btn remove" onclick="removeFriend(${friend.id
+                    })">❌</button>
+        </div>
+      </div>
+    `
+            )
+            .join("");
+    }
+
+    /**
+     * Add a new friend
+     */
+    function addFriend() {
+        const addFriendInput = document.getElementById("addFriendInput");
+        const username = addFriendInput.value.trim();
+
+        if (!username) {
+            showToastMessage("Please enter a username!");
+            return;
+        }
+
+        // Check if friend already exists
+        const existingFriend = friends.find(
+            (friend) => friend.name.toLowerCase() === username.toLowerCase()
+        );
+
+        if (existingFriend) {
+            showToastMessage("This friend is already in your list!");
+            return;
+        }
+
+        // Create new friend
+        const newFriend = {
+            id: Date.now(), // Simple ID generation
+            name: username,
+            avatar: "👤", // Default avatar
+            status: "offline",
+            lastSeen: "Just added",
+        };
+
+        friends.push(newFriend);
+        renderFriendsList();
+        updateFriendsBadge();
+        addFriendInput.value = "";
+
+        showToastMessage(`Added ${username} as a friend!`);
+    }
+
+    /**
+     * Remove a friend
+     */
+    function removeFriend(friendId) {
+        const friend = friends.find((f) => f.id === friendId);
+        if (!friend) return;
+
+        if (confirm(`Remove ${friend.name} from your friends list?`)) {
+            friends = friends.filter((f) => f.id !== friendId);
+            renderFriendsList();
+            updateFriendsBadge();
+            showToastMessage(`Removed ${friend.name} from friends`);
+        }
+    }
+
+    /**
+     * View friend profile (placeholder function)
+     */
+    function viewFriendProfile(friendId) {
+        const friend = friends.find((f) => f.id === friendId);
+        if (friend) {
+            showToastMessage(`Viewing ${friend.name}'s profile (coming soon!)`);
+        }
+    }
+
+    /**
+     * Update friends badge count
+     */
+    function updateFriendsBadge() {
+        const friendsBadge = document.querySelector("#friendsBtn .nav-badge");
+        if (friendsBadge) {
+            friendsBadge.textContent = friends.length;
+        }
+    }
+
+    // Make functions globally accessible
+    window.addFriend = addFriend;
+    window.removeFriend = removeFriend;
+    window.viewFriendProfile = viewFriendProfile;
+
+    // ==============================================================
     // GEOLOCATION AND USER INTERACTION
     // ==============================================================
 
@@ -1456,7 +1648,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Create bounds from all user photo locations
         const group = new L.featureGroup();
 
-        userPhotos.forEach(photo => {
+        userPhotos.forEach((photo) => {
             const marker = L.marker([photo.latitude, photo.longitude]);
             group.addLayer(marker);
         });
@@ -1465,7 +1657,7 @@ document.addEventListener("DOMContentLoaded", function () {
         map.fitBounds(group.getBounds(), {
             padding: [20, 20],
             animate: true,
-            duration: 2.0
+            duration: 2.0,
         });
 
         // Clean up temporary group
@@ -1700,13 +1892,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Find Me button
     if (findMeBtn) {
-        console.log("✅ Find Me button found, adding event listener");
-        findMeBtn.addEventListener("click", function () {
-            console.log("🔍 Find Me button clicked!");
-            getCurrentLocation();
-        });
-    } else {
-        console.error("❌ Find Me button not found!");
+        findMeBtn.addEventListener("click", getCurrentLocation);
     }
 
     // Search functionality
@@ -1758,7 +1944,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Update mockPhotos with new data set (only demo photos, user photos handled separately)
         mockPhotos = [...getCurrentDemoPhotos()];
-        console.log(`📱 Loaded ${mockPhotos.length} public photos from set ${currentDataSet}`);
+        console.log(
+            `📱 Loaded ${mockPhotos.length} public photos from set ${currentDataSet}`
+        );
 
         // Re-add markers for new data set
         setTimeout(() => {
@@ -1770,14 +1958,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("✅ Data refresh complete!");
         }, 500);
-    }
-
-    // Sidebar toggle button
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener("click", function () {
-            sidebar.classList.toggle("sidebar-expanded");
-            console.log("🔄 Sidebar toggled");
-        });
     }
 
     // Enhanced sidebar navigation
@@ -1830,7 +2010,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     // Return to Auckland view for public stories
                     map.setView([-36.8485, 174.7633], 12, {
                         animate: true,
-                        duration: 1.5
+                        duration: 1.5,
                     });
                 }
 
@@ -1870,7 +2050,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const friendsBtn = document.getElementById("friendsBtn");
         if (friendsBtn) {
             friendsBtn.addEventListener("click", function () {
-                showToastMessage("👥 Friends feature coming soon!");
+                showFriendsModal();
             });
         }
 
@@ -2000,6 +2180,36 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Friends modal event listeners
+    const closeFriendsModal = document.getElementById("closeFriendsModal");
+    if (closeFriendsModal) {
+        closeFriendsModal.addEventListener("click", hideFriendsModal);
+    }
+
+    const addFriendBtn = document.getElementById("addFriendBtn");
+    if (addFriendBtn) {
+        addFriendBtn.addEventListener("click", addFriend);
+    }
+
+    const addFriendInput = document.getElementById("addFriendInput");
+    if (addFriendInput) {
+        addFriendInput.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                addFriend();
+            }
+        });
+    }
+
+    // Close friends modal when clicking outside
+    const friendsModal = document.getElementById("friendsModal");
+    if (friendsModal) {
+        friendsModal.addEventListener("click", function (e) {
+            if (e.target === friendsModal) {
+                hideFriendsModal();
+            }
+        });
+    }
+
     // Handle device orientation changes
     window.addEventListener("orientationchange", function () {
         setTimeout(() => {
@@ -2034,6 +2244,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize sidebar state
     updateUserPhotoCount();
+    updateFriendsBadge(); // Initialize friends badge
     document.getElementById("mapViewBtn").classList.add("active");
 
     // Force map to fill properly after initialization
