@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(`📍 Adding cluster marker with ${cluster.length} photos`);
 
         // Sort photos by date (newest first)
-        cluster.sort((a, b) => new Date(b.date) - new Date(a.date));
+        cluster.sort((a, b) => new Date(a.date) - new Date(b.date));
 
         // Calculate cluster center
         const centerLat =
@@ -351,6 +351,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         function updateCarousel() {
             const photo = photos[currentIndex];
+            const timeAgo = getTimeAgo(photo.date);
             const polaroidHTML = `
         <div class="cluster-header">
           <h3>📸 ${photos.length} Photos at ${photo.location}</h3>
@@ -360,6 +361,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <img src="${photo.url}" alt="${photo.description}" />
           <div class="panel-metadata">
             <div class="panel-date">${photo.date}</div>
+            <div class="panel-time-ago" style="font-size: 6px; color: #7f8c8d; margin-top: 3px;">⏰ ${timeAgo}</div>
             <div class="panel-location">${photo.location}</div>
             <div style="margin-top: 10px; font-size: 7px; color: #34495e; line-height: 1.3;">
               ${photo.description}
@@ -461,11 +463,13 @@ document.addEventListener("DOMContentLoaded", function () {
      * Show photo details in the mobile-friendly info panel
      */
     function showPhotoDetails(photo) {
+        const timeAgo = getTimeAgo(photo.date);
         const polaroidHTML = `
             <div class="panel-polaroid">
                 <img src="${photo.url}" alt="${photo.description}" />
                 <div class="panel-metadata">
                     <div class="panel-date">${photo.date}</div>
+                    <div class="panel-time-ago" style="font-size: 6px; color: #7f8c8d; margin-top: 3px;">⏰ ${timeAgo}</div>
                     <div class="panel-location">${photo.location}</div>
                     <div style="margin-top: 10px; font-size: 7px; color: #34495e; line-height: 1.3;">
                         ${photo.description}
@@ -503,7 +507,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                     <div class="form-group">
                         <label for="photoDate">Date:</label>
-                        <input type="date" id="photoDate" required>
+                        <input type="date" id="photoDate" max="${new Date().toISOString().split('T')[0]}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="photoPublic">
+                            <input type="checkbox" id="photoPublic" checked> Make this memory public
+                        </label>
                     </div>
                     <div class="form-buttons">
                         <button type="submit" class="add-btn">✨ ADD MEMORY</button>
@@ -576,6 +585,12 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        // Validate date is not in the future
+        if (!isValidPhotoDate(date)) {
+            alert("📅 The photo date cannot be in the future. Please select today's date or an earlier date.");
+            return;
+        }
+
         // Create object URL for the uploaded image
         const imageUrl = URL.createObjectURL(file);
 
@@ -643,6 +658,54 @@ document.addEventListener("DOMContentLoaded", function () {
     // ==============================================================
 
     /**
+     * Calculate how long ago a date was from now
+     */
+    function getTimeAgo(dateString) {
+        const now = new Date();
+        const photoDate = new Date(dateString);
+        const diffInMs = now - photoDate;
+
+        // Convert to different time units
+        const diffInSeconds = Math.floor(diffInMs / 1000);
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        const diffInDays = Math.floor(diffInHours / 24);
+        const diffInWeeks = Math.floor(diffInDays / 7);
+        const diffInMonths = Math.floor(diffInDays / 30);
+        const diffInYears = Math.floor(diffInDays / 365);
+
+        if (diffInYears > 0) {
+            return diffInYears === 1 ? "1 year ago" : `${diffInYears} years ago`;
+        } else if (diffInMonths > 0) {
+            return diffInMonths === 1 ? "1 month ago" : `${diffInMonths} months ago`;
+        } else if (diffInWeeks > 0) {
+            return diffInWeeks === 1 ? "1 week ago" : `${diffInWeeks} weeks ago`;
+        } else if (diffInDays > 0) {
+            return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`;
+        } else if (diffInHours > 0) {
+            return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
+        } else if (diffInMinutes > 0) {
+            return diffInMinutes === 1 ? "1 minute ago" : `${diffInMinutes} minutes ago`;
+        } else {
+            return "Just now";
+        }
+    }
+
+    /**
+     * Validate that a date is not in the future
+     */
+    function isValidPhotoDate(dateString) {
+        const photoDate = new Date(dateString);
+        const today = new Date();
+
+        // Set both dates to start of day for fair comparison
+        photoDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        return photoDate <= today;
+    }
+
+    /**
      * Calculate distance between two coordinates
      */
     function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -674,12 +737,20 @@ document.addEventListener("DOMContentLoaded", function () {
         dateDiv.className = "photo-date";
         dateDiv.textContent = photo.date;
 
+        const timeAgoDiv = document.createElement("div");
+        timeAgoDiv.className = "photo-time-ago";
+        timeAgoDiv.style.fontSize = "6px";
+        timeAgoDiv.style.color = "#7f8c8d";
+        timeAgoDiv.style.marginTop = "3px";
+        timeAgoDiv.textContent = `⏰ ${getTimeAgo(photo.date)}`;
+
         const locationDiv = document.createElement("div");
         locationDiv.className = "photo-location";
         locationDiv.textContent = photo.location;
 
         photoContainer.appendChild(img);
         metadata.appendChild(dateDiv);
+        metadata.appendChild(timeAgoDiv);
         metadata.appendChild(locationDiv);
         card.appendChild(photoContainer);
         card.appendChild(metadata);
@@ -1262,3 +1333,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("🇳🇿 Memory Map initialized for Auckland! Ready for memories.");
 });
+
