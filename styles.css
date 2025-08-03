@@ -383,6 +383,9 @@ body {
     box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
     z-index: 1000;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .refresh-floating:hover {
@@ -453,11 +456,11 @@ body {
 }
 
 .stories-toggle-floating.friends-mode {
-  background: #9b59b6;
+    background: #9b59b6;
 }
 
 .stories-toggle-floating.friends-mode:hover {
-  background: #8e44ad;
+    background: #8e44ad;
 }
 
 /* Search bar styling */

@@ -2032,6 +2032,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 500);
     }
 
+    // Function to control refresh button visibility
+    function updateRefreshButtonVisibility() {
+        const refreshBtn = document.getElementById("refreshBtn");
+        if (refreshBtn) {
+            // Only show refresh button in public map mode
+            if (currentView === "map" && currentFilter === "all") {
+                refreshBtn.style.display = "flex";
+            } else {
+                refreshBtn.style.display = "none";
+            }
+        }
+    }
+
     // Enhanced sidebar navigation
     setupSidebarNavigation();
 
@@ -2081,6 +2094,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // Update user photo count
                 updateUserPhotoCount();
+
+                // Update refresh button visibility
+                updateRefreshButtonVisibility();
 
                 // Update map markers immediately
                 addClusteredPhotoMarkers();
@@ -2238,6 +2254,15 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("mapViewBtn").classList.add("active");
             document.getElementById("timelineViewBtn").classList.remove("active");
 
+            // Show search container in map view
+            const searchContainer = document.getElementById("searchContainer");
+            if (searchContainer) {
+                searchContainer.style.display = "flex";
+            }
+
+            // Update refresh button visibility
+            updateRefreshButtonVisibility();
+
             // Refresh map if needed
             if (map) {
                 setTimeout(() => {
@@ -2257,6 +2282,15 @@ document.addEventListener("DOMContentLoaded", function () {
             // Update active states
             document.getElementById("timelineViewBtn").classList.add("active");
             document.getElementById("mapViewBtn").classList.remove("active");
+
+            // Hide search container in timeline view
+            const searchContainer = document.getElementById("searchContainer");
+            if (searchContainer) {
+                searchContainer.style.display = "none";
+            }
+
+            // Update refresh button visibility
+            updateRefreshButtonVisibility();
 
             updateTimelineView();
             hidePhotoDetails();
@@ -2397,6 +2431,9 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("🚀 Auto-triggering initial geolocation...");
         getInitialLocation();
     }, 1000); // Increased delay to ensure map is ready
+
+    // Set initial refresh button visibility
+    updateRefreshButtonVisibility();
 
     console.log("🇳🇿 Memory Map initialized for Auckland! Ready for memories.");
 });
