@@ -86,6 +86,32 @@ document.addEventListener("DOMContentLoaded", function () {
             friendName: "Mike Johnson",
         },
         {
+            id: 211,
+            url: "images/alvin1.jpg", // Local image for demo
+            latitude: -36.93437, // Auckland, New Zealand
+            longitude: 174.915984,
+            date: "2020-07-08",
+            location: "Botany Downs Secondary College",
+            description:
+                "Significant memories during lock-down in high school! Recieved a trophy!",
+            isUser: false,
+            isFriend: true,
+            friendName: "Alvin Wong",
+        },
+        {
+            id: 212,
+            url: "images/alvin2.jpg", // Local image for demo
+            latitude: -36.93437, // Auckland, New Zealand
+            longitude: 174.915984,
+            date: "2023-07-08",
+            location: "Botany Downs Secondary College",
+            description:
+                "Finally graduated from high school! So many memories with friends. Significant moment for me",
+            isUser: false,
+            isFriend: true,
+            friendName: "Alvin Wong",
+        },
+        {
             id: 303,
             url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
             latitude: -36.858,
@@ -202,27 +228,16 @@ document.addEventListener("DOMContentLoaded", function () {
             isUser: true,
         },
         {
-            id: 211,
-            url: "images/alvin1.jpg", // Local image for demo
-            latitude: -36.93437, // Auckland, New Zealand
-            longitude: 174.915984,
-            date: "2020-07-08",
-            location: "Botany Downs Secondary College",
+            id: 220,
+            url: "images/boy.png",
+            latitude: -36.84039, // Auckland, New Zealand
+            longitude: 174.75531,
+            date: "2002-04-19",
+            location: "Silo Park",
             description:
-                "Significant memories during lock-down in high school! Recieved a trophy!",
+                "Childhood memories at Silo Park! Always a fun place to hang out.",
             isUser: true,
-        },
-        {
-            id: 212,
-            url: "images/alvin2.jpg", // Local image for demo
-            latitude: -36.93437, // Auckland, New Zealand
-            longitude: 174.915984,
-            date: "2023-07-08",
-            location: "Botany Downs Secondary College",
-            description:
-                "Finally graduated from high school! So many memories with friends. Significant moment for me",
-            isUser: true,
-        },
+        }
     ];
     // ==============================================================
     // PHOTO DATA
