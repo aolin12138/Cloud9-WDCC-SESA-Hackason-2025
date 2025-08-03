@@ -40,6 +40,24 @@ document.addEventListener("DOMContentLoaded", function () {
   let photoIdCounter = 300; // Start from 300 for new photos (demo user photos use 201-205)
   let currentFilter = "all"; // 'all' or 'user' - tracks what stories to show
 
+  // Friends data
+  let friends = [
+    {
+      id: 1,
+      name: "Alvin Wong",
+      avatar: "👩‍💻",
+      status: "online",
+      lastSeen: "2 minutes ago",
+    },
+    {
+      id: 2,
+      name: "Mike Johnson",
+      avatar: "👨‍🎨",
+      status: "offline",
+      lastSeen: "1 hour ago",
+    },
+  ];
+
   // ==============================================================
   // PHOTO DATA
   // ==============================================================
@@ -1362,6 +1380,156 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==============================================================
+  // FRIENDS MODAL FUNCTIONS
+  // ==============================================================
+
+  /**
+   * Show friends modal
+   */
+  function showFriendsModal() {
+    const friendsModal = document.getElementById("friendsModal");
+    if (friendsModal) {
+      friendsModal.classList.remove("hidden");
+      renderFriendsList();
+      updateFriendsBadge();
+    }
+  }
+
+  /**
+   * Hide friends modal
+   */
+  function hideFriendsModal() {
+    const friendsModal = document.getElementById("friendsModal");
+    if (friendsModal) {
+      friendsModal.classList.add("hidden");
+    }
+  }
+
+  /**
+   * Render friends list in the modal
+   */
+  function renderFriendsList() {
+    const friendsList = document.getElementById("friendsList");
+    if (!friendsList) return;
+
+    if (friends.length === 0) {
+      friendsList.innerHTML = `
+        <div class="no-friends-message">
+          No friends yet. Add some friends to start sharing memories!
+        </div>
+      `;
+      return;
+    }
+
+    friendsList.innerHTML = friends
+      .map(
+        (friend) => `
+      <div class="friend-item" data-friend-id="${friend.id}">
+        <div class="friend-avatar">
+          ${friend.avatar}
+        </div>
+        <div class="friend-info">
+          <div class="friend-name">${friend.name}</div>
+          <div class="friend-status ${friend.status}">
+            ${
+              friend.status === "online" ? "🟢 Online" : `🔴 ${friend.lastSeen}`
+            }
+          </div>
+        </div>
+        <div class="friend-actions">
+          <button class="friend-action-btn" onclick="viewFriendProfile(${
+            friend.id
+          })">👁️</button>
+          <button class="friend-action-btn remove" onclick="removeFriend(${
+            friend.id
+          })">❌</button>
+        </div>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  /**
+   * Add a new friend
+   */
+  function addFriend() {
+    const addFriendInput = document.getElementById("addFriendInput");
+    const username = addFriendInput.value.trim();
+
+    if (!username) {
+      showToastMessage("Please enter a username!");
+      return;
+    }
+
+    // Check if friend already exists
+    const existingFriend = friends.find(
+      (friend) => friend.name.toLowerCase() === username.toLowerCase()
+    );
+
+    if (existingFriend) {
+      showToastMessage("This friend is already in your list!");
+      return;
+    }
+
+    // Create new friend
+    const newFriend = {
+      id: Date.now(), // Simple ID generation
+      name: username,
+      avatar: "👤", // Default avatar
+      status: "offline",
+      lastSeen: "Just added",
+    };
+
+    friends.push(newFriend);
+    renderFriendsList();
+    updateFriendsBadge();
+    addFriendInput.value = "";
+
+    showToastMessage(`Added ${username} as a friend!`);
+  }
+
+  /**
+   * Remove a friend
+   */
+  function removeFriend(friendId) {
+    const friend = friends.find((f) => f.id === friendId);
+    if (!friend) return;
+
+    if (confirm(`Remove ${friend.name} from your friends list?`)) {
+      friends = friends.filter((f) => f.id !== friendId);
+      renderFriendsList();
+      updateFriendsBadge();
+      showToastMessage(`Removed ${friend.name} from friends`);
+    }
+  }
+
+  /**
+   * View friend profile (placeholder function)
+   */
+  function viewFriendProfile(friendId) {
+    const friend = friends.find((f) => f.id === friendId);
+    if (friend) {
+      showToastMessage(`Viewing ${friend.name}'s profile (coming soon!)`);
+    }
+  }
+
+  /**
+   * Update friends badge count
+   */
+  function updateFriendsBadge() {
+    const friendsBadge = document.querySelector("#friendsBtn .nav-badge");
+    if (friendsBadge) {
+      friendsBadge.textContent = friends.length;
+    }
+  }
+
+  // Make functions globally accessible
+  window.addFriend = addFriend;
+  window.removeFriend = removeFriend;
+  window.viewFriendProfile = viewFriendProfile;
+
+  // ==============================================================
   // GEOLOCATION AND USER INTERACTION
   // ==============================================================
 
@@ -1879,7 +2047,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const friendsBtn = document.getElementById("friendsBtn");
     if (friendsBtn) {
       friendsBtn.addEventListener("click", function () {
-        showToastMessage("👥 Friends feature coming soon!");
+        showFriendsModal();
       });
     }
 
@@ -2009,6 +2177,36 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Friends modal event listeners
+  const closeFriendsModal = document.getElementById("closeFriendsModal");
+  if (closeFriendsModal) {
+    closeFriendsModal.addEventListener("click", hideFriendsModal);
+  }
+
+  const addFriendBtn = document.getElementById("addFriendBtn");
+  if (addFriendBtn) {
+    addFriendBtn.addEventListener("click", addFriend);
+  }
+
+  const addFriendInput = document.getElementById("addFriendInput");
+  if (addFriendInput) {
+    addFriendInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        addFriend();
+      }
+    });
+  }
+
+  // Close friends modal when clicking outside
+  const friendsModal = document.getElementById("friendsModal");
+  if (friendsModal) {
+    friendsModal.addEventListener("click", function (e) {
+      if (e.target === friendsModal) {
+        hideFriendsModal();
+      }
+    });
+  }
+
   // Handle device orientation changes
   window.addEventListener("orientationchange", function () {
     setTimeout(() => {
@@ -2043,6 +2241,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize sidebar state
   updateUserPhotoCount();
+  updateFriendsBadge(); // Initialize friends badge
   document.getElementById("mapViewBtn").classList.add("active");
 
   // Force map to fill properly after initialization

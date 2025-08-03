@@ -1513,3 +1513,266 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* Friends Modal Styles */
+.friends-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.friends-modal:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+}
+
+.friends-modal-content {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  border: 2px solid #3498db;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(-50px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.friends-modal-header {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #2980b9;
+}
+
+.friends-modal-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 14px;
+  font-family: "Press Start 2P", monospace;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.friends-modal-body {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.add-friend-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #34495e;
+}
+
+.add-friend-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.add-friend-input input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #3498db;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: white;
+  font-size: 12px;
+  font-family: "Press Start 2P", monospace;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.add-friend-input input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.add-friend-input input:focus {
+  border-color: #e74c3c;
+  box-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
+}
+
+.add-friend-btn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Press Start 2P", monospace;
+  min-width: 40px;
+}
+
+.add-friend-btn:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+  transform: scale(1.05);
+}
+
+.add-friend-btn:active {
+  transform: scale(0.95);
+}
+
+.friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.friend-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #34495e;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.friend-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #3498db;
+  transform: translateX(5px);
+}
+
+.friend-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.friend-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-name {
+  color: white;
+  font-size: 12px;
+  font-family: "Press Start 2P", monospace;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friend-status {
+  color: #95a5a6;
+  font-size: 8px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.friend-status.online {
+  color: #2ecc71;
+}
+
+.friend-status.offline {
+  color: #e74c3c;
+}
+
+.friend-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.friend-action-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #34495e;
+  border-radius: 5px;
+  padding: 5px 8px;
+  color: white;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Press Start 2P", monospace;
+}
+
+.friend-action-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #3498db;
+}
+
+.friend-action-btn.remove {
+  background: rgba(231, 76, 60, 0.2);
+  border-color: #e74c3c;
+}
+
+.friend-action-btn.remove:hover {
+  background: rgba(231, 76, 60, 0.4);
+}
+
+.no-friends-message {
+  text-align: center;
+  color: #95a5a6;
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+  padding: 20px;
+}
+
+/* Mobile responsive adjustments for friends modal */
+@media screen and (max-width: 480px) {
+  .friends-modal-content {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .friends-modal-header h3 {
+    font-size: 12px;
+  }
+
+  .add-friend-input input {
+    font-size: 10px;
+    padding: 8px 10px;
+  }
+
+  .add-friend-btn {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .friend-name {
+    font-size: 10px;
+  }
+
+  .friend-status {
+    font-size: 7px;
+  }
+
+  .friend-action-btn {
+    font-size: 8px;
+    padding: 4px 6px;
+  }
+}

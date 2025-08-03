@@ -171,6 +171,30 @@
                 <!-- Polaroid cards will be displayed here when in timeline mode -->
             </div>
         </div>
+
+        <!-- Friends popup modal -->
+        <div id="friendsModal" class="friends-modal hidden">
+            <div class="friends-modal-content">
+                <div class="friends-modal-header">
+                    <h3>👥 Friends</h3>
+                    <button id="closeFriendsModal" class="close-btn">✕</button>
+                </div>
+                <div class="friends-modal-body">
+                    <!-- Add friend section -->
+                    <div class="add-friend-section">
+                        <div class="add-friend-input">
+                            <input type="text" id="addFriendInput" placeholder="Search or add friend by username..." />
+                            <button id="addFriendBtn" class="add-friend-btn">➕</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Friends list -->
+                    <div class="friends-list" id="friendsList">
+                        <!-- Friends will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Leaflet JavaScript -->
