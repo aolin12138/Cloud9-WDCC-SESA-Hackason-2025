@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentView = "map"; // 'map' or 'timeline'
     let photoIdCounter = 100; // Start from 100 for new photos
     let currentFilter = "all"; // 'all' or 'user' - tracks what stories to show
+    let currentDataSet = "A"; // 'A' or 'B' - tracks which data set is active
 
     // ==============================================================
     // PHOTO DATA
@@ -40,42 +41,238 @@ document.addEventListener("DOMContentLoaded", function () {
     // User's own photos (locally created)
     const userPhotos = [];
 
-    // Demo photos from other users for the demo
-    const demoPhotos = [
+    // SET A: Adventure & Outdoor Explorer Group (more spread to the left)
+    const demoPhotosSetA = [
+        // CLUSTER 1: Auckland Central area (4 photos spread around center)
         {
             id: 1,
             url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
             latitude: -36.8485,
             longitude: 174.7633,
             date: "2024-12-15",
-            location: "Auckland Harbour Bridge",
-            description: "Amazing sunset view from the harbour! Perfect evening with friends.",
+            location: "Queen Street",
+            description: "Amazing sunset view from the city center! Perfect evening with friends.",
             isUser: false
         },
         {
             id: 2,
             url: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop",
-            latitude: -36.8440,
-            longitude: 174.7680,
+            latitude: -36.8475,
+            longitude: 174.7590, // Further left
             date: "2024-12-10",
-            location: "Sky Tower",
-            description: "Christmas lights looking spectacular from up here! Auckland looks magical.",
+            location: "Aotea Square",
+            description: "Christmas lights looking spectacular in the city! Auckland looks magical.",
             isUser: false
         },
         {
             id: 3,
+            url: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
+            latitude: -36.8480,
+            longitude: 174.7640, // Right side
+            date: "2024-12-09",
+            location: "Britomart Station",
+            description: "Transport hub buzzing with energy. Love the modern architecture here.",
+            isUser: false
+        },
+        {
+            id: 4,
+            url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop",
+            latitude: -36.8490,
+            longitude: 174.7600, // Further left
+            date: "2024-12-11",
+            location: "High Street",
+            description: "Late night eats in the city. This area never sleeps!",
+            isUser: false
+        },
+
+        // CLUSTER 2: Far Western side near Freemans Bay (3 photos far left)
+        {
+            id: 5,
             url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
-            latitude: -36.8570,
-            longitude: 174.7430,
+            latitude: -36.8450,
+            longitude: 174.7550, // Far left
             date: "2024-12-08",
-            location: "Viaduct Harbour",
-            description: "Coffee morning with the best harbor views. Love this spot!",
+            location: "Freemans Bay",
+            description: "Coffee morning with harbor views. Love this waterfront spot!",
+            isUser: false
+        },
+        {
+            id: 6,
+            url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+            latitude: -36.8455,
+            longitude: 174.7545, // Far left
+            date: "2024-12-07",
+            location: "Victoria Park",
+            description: "Weekend markets here! Fresh local produce and great vibes.",
+            isUser: false
+        },
+        {
+            id: 7,
+            url: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=300&fit=crop",
+            latitude: -36.8445,
+            longitude: 174.7555, // Far left
+            date: "2024-12-06",
+            location: "Auckland Fish Market",
+            description: "Fresh seafood adventure! Perfect for weekend exploring.",
+            isUser: false
+        },
+
+        // Individual markers on both sides
+        {
+            id: 8,
+            url: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=400&h=300&fit=crop",
+            latitude: -36.8460,
+            longitude: 174.7650, // Right side
+            date: "2024-12-05",
+            location: "Albert Park",
+            description: "Green space in the city! Perfect lunch break spot.",
+            isUser: false
+        },
+        {
+            id: 9,
+            url: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&h=300&fit=crop",
+            latitude: -36.8510,
+            longitude: 174.7580, // Left side
+            date: "2024-12-04",
+            location: "Auckland University",
+            description: "Campus life! Great study spots and student energy everywhere.",
+            isUser: false
+        },
+        {
+            id: 10,
+            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+            latitude: -36.8440,
+            longitude: 174.7670, // Right side
+            date: "2024-12-03",
+            location: "Karangahape Road",
+            description: "K Road vibes! Eclectic mix of culture and street art.",
             isUser: false
         }
     ];
 
+    // SET B: Foodie & Culture Group (also more spread to the left)
+    const demoPhotosSetB = [
+        // CLUSTER 3: Far Western Ponsonby area (3 photos far left)
+        {
+            id: 11,
+            url: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=300&fit=crop",
+            latitude: -36.8520,
+            longitude: 174.7530, // Far left
+            date: "2024-11-28",
+            location: "Ponsonby Road",
+            description: "Brunch goals! This cafe does the best avocado toast nearby.",
+            isUser: false
+        },
+        {
+            id: 12,
+            url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
+            latitude: -36.8525,
+            longitude: 174.7535, // Far left
+            date: "2024-11-29",
+            location: "Ponsonby Central",
+            description: "Food court heaven! So many delicious options nearby.",
+            isUser: false
+        },
+        {
+            id: 13,
+            url: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop",
+            latitude: -36.8515,
+            longitude: 174.7525, // Far left
+            date: "2024-11-30",
+            location: "Three Lamps",
+            description: "Weekend market vibes! Local vendors just a short walk away.",
+            isUser: false
+        },
+
+        // CLUSTER 4: Eastern harbor area (2 photos on right side)
+        {
+            id: 14,
+            url: "https://images.unsplash.com/photo-1481833761820-0509d3217039?w=400&h=300&fit=crop",
+            latitude: -36.8435,
+            longitude: 174.7660, // Right side
+            date: "2024-11-25",
+            location: "Viaduct Harbour",
+            description: "Shopping and dining! Found some amazing spots by the water.",
+            isUser: false
+        },
+        {
+            id: 15,
+            url: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop",
+            latitude: -36.8430,
+            longitude: 174.7665, // Right side
+            date: "2024-11-26",
+            location: "Viaduct Events Center",
+            description: "Live music and events! The energy here is incredible.",
+            isUser: false
+        },
+
+        // Individual markers distributed with more on the left
+        {
+            id: 16,
+            url: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop",
+            latitude: -36.8465,
+            longitude: 174.7645, // Right side
+            date: "2024-11-22",
+            location: "City Works Depot",
+            description: "Cool shopping spot! Great local brands and coffee.",
+            isUser: false
+        },
+        {
+            id: 17,
+            url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
+            latitude: -36.8455,
+            longitude: 174.7570, // Left side
+            date: "2024-11-20",
+            location: "Federal Street",
+            description: "Restaurant row! So many dining options within walking distance.",
+            isUser: false
+        },
+        {
+            id: 18,
+            url: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&h=300&fit=crop",
+            latitude: -36.8495,
+            longitude: 174.7575, // Left side
+            date: "2024-11-18",
+            location: "Fort Street",
+            description: "Historic charm meets modern life. Love exploring these streets.",
+            isUser: false
+        },
+        {
+            id: 19,
+            url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+            latitude: -36.8450,
+            longitude: 174.7655, // Right side
+            date: "2024-11-15",
+            location: "Myers Park",
+            description: "Hidden gem park! Perfect for a quick nature break in the city.",
+            isUser: false
+        },
+        {
+            id: 20,
+            url: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=400&h=300&fit=crop",
+            latitude: -36.8505,
+            longitude: 174.7610, // Left of center
+            date: "2024-11-12",
+            location: "Auckland Art Gallery",
+            description: "Culture day! Amazing exhibitions and right in the heart of the city.",
+            isUser: false
+        }
+    ];
+
+    // Combined demo photos from both sets
+    const demoPhotos = [...demoPhotosSetA, ...demoPhotosSetB];
+
+    // Function to get current active demo photos based on data set
+    function getCurrentDemoPhotos() {
+        if (currentDataSet === "A") {
+            return demoPhotosSetA;
+        } else {
+            return demoPhotosSetB;
+        }
+    }
+
     // Combined photo array - all photos including user's and demo photos
-    let mockPhotos = [...demoPhotos];
+    let mockPhotos = [...getCurrentDemoPhotos()];
 
     // ==============================================================
     // MAP INITIALIZATION AND MANAGEMENT
@@ -610,8 +807,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Add to user photos array
         userPhotos.push(newPhoto);
 
-        // Add to combined photos array
-        mockPhotos.push(newPhoto);
+        // Update combined photos array with current demo set + user photos
+        mockPhotos = [...getCurrentDemoPhotos(), ...userPhotos];
 
         console.log("📸 Photo added successfully!");
         console.log("userPhotos now has:", userPhotos.length, "photos");
@@ -1183,6 +1380,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 showToastMessage("❓ Help: Click on map to add memories, use sidebar to filter!");
             });
         }
+
+        // Refresh button
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener("click", function () {
+                refreshDataSet();
+            });
+        }
     }
 
     function updateUserPhotoCount() {
@@ -1255,6 +1460,39 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }, 300);
         }, 2000);
+    }
+
+    function refreshDataSet() {
+        const refreshBtn = document.getElementById('refreshBtn');
+        
+        // Start refresh animation
+        if (refreshBtn) {
+            refreshBtn.classList.add('refreshing');
+        }
+
+        // Switch data set
+        currentDataSet = currentDataSet === "A" ? "B" : "A";
+        
+        // Update photos array
+        mockPhotos = [...getCurrentDemoPhotos(), ...userPhotos];
+
+        // Clear and refresh markers
+        if (markerLayer) {
+            markerLayer.clearLayers();
+        }
+        addClusteredPhotoMarkers();
+
+        // Update timeline if active
+        if (currentView === "timeline") {
+            updateTimelineView();
+        }
+
+        // Stop refresh animation
+        setTimeout(() => {
+            if (refreshBtn) {
+                refreshBtn.classList.remove('refreshing');
+            }
+        }, 400);
     }
 
     // Toggle View button (if it exists)
