@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let markerLayer = null; // Layer group for all markers
     let currentView = "map"; // 'map' or 'timeline'
     let photoIdCounter = 300; // Start from 300 for new photos (demo user photos use 201-205)
-    let currentFilter = "all"; // 'all' or 'user' - tracks what stories to show
+    let currentFilter = "all"; // 'all', 'user', or 'friends' - tracks what stories to show
 
     // Friends data
     let friends = [
@@ -59,6 +59,58 @@ document.addEventListener("DOMContentLoaded", function () {
         },
     ];
 
+    // Demo friend photos
+    const friendPhotos = [
+        {
+            id: 301,
+            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+            latitude: -36.8485,
+            longitude: 174.7633,
+            date: "2024-12-10",
+            location: "Auckland Domain",
+            description: "Beautiful day at the Domain! Love this city 🌳",
+            isUser: false,
+            isFriend: true,
+            friendName: "Alvin Wong",
+        },
+        {
+            id: 302,
+            url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop",
+            latitude: -36.841,
+            longitude: 174.752,
+            date: "2024-12-08",
+            location: "Viaduct Harbour",
+            description: "Amazing sunset at the harbor! Perfect evening 🌅",
+            isUser: false,
+            isFriend: true,
+            friendName: "Mike Johnson",
+        },
+        {
+            id: 303,
+            url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
+            latitude: -36.858,
+            longitude: 174.778,
+            date: "2024-12-05",
+            location: "Parnell Rose Gardens",
+            description: "Spring flowers are blooming! So peaceful 🌸",
+            isUser: false,
+            isFriend: true,
+            friendName: "Alvin Wong",
+        },
+        {
+            id: 304,
+            url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
+            latitude: -36.865,
+            longitude: 174.775,
+            date: "2024-12-03",
+            location: "Newmarket",
+            description: "Shopping and coffee! Best combo ☕",
+            isUser: false,
+            isFriend: true,
+            friendName: "Mike Johnson",
+        },
+    ];
+
     // User's own photos (locally created) - scattered across different countries for travel theme
     const userPhotos = [
         {
@@ -68,8 +120,9 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 139.6503,
             date: "2024-06-10",
             location: "Tokyo, Japan",
-            description: "Cherry blossoms in full bloom! Tokyo is absolutely magical in spring. 🌸",
-            isUser: true
+            description:
+                "Cherry blossoms in full bloom! Tokyo is absolutely magical in spring. 🌸",
+            isUser: true,
         },
         {
             id: 202,
@@ -78,8 +131,9 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 116.4074,
             date: "2024-06-25",
             location: "Beijing, China",
-            description: "The Great Wall of China - incredible history and breathtaking views! 🏯",
-            isUser: true
+            description:
+                "The Great Wall of China - incredible history and breathtaking views! 🏯",
+            isUser: true,
         },
         {
             id: 203,
@@ -88,8 +142,9 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 174.7633,
             date: "2024-07-15",
             location: "Auckland, New Zealand",
-            description: "Finally back home in Auckland! Nothing beats this harbor city. 🇳🇿",
-            isUser: true
+            description:
+                "Finally back home in Auckland! Nothing beats this harbor city. 🇳🇿",
+            isUser: true,
         },
         {
             id: 204,
@@ -98,8 +153,9 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 135.5023,
             date: "2024-07-28",
             location: "Osaka, Japan",
-            description: "Best takoyaki in Osaka! The food culture here is incredible. 🍜",
-            isUser: true
+            description:
+                "Best takoyaki in Osaka! The food culture here is incredible. 🍜",
+            isUser: true,
         },
         {
             id: 205,
@@ -108,18 +164,9 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 114.1694,
             date: "2024-08-01",
             location: "Hong Kong",
-            description: "Victoria Harbor skyline at sunset - absolutely stunning! 🌅",
-            isUser: true
-        },
-        {
-            id: 207,
-            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-            latitude: -43.5321, // Christchurch, New Zealand
-            longitude: 172.6362,
-            date: "2024-06-12",
-            location: "Christchurch, New Zealand",
-            description: "Garden city charm! Recovery and resilience make this place special. 🌺",
-            isUser: true
+            description:
+                "Victoria Harbor skyline at sunset - absolutely stunning! 🌅",
+            isUser: true,
         },
         {
             id: 208,
@@ -128,18 +175,20 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 170.5028,
             date: "2024-06-18",
             location: "Queenstown, New Zealand",
-            description: "Adventure capital of the world! Lake Wakatipu is breathtaking. 🏔️",
-            isUser: true
+            description:
+                "Adventure capital of the world! Lake Wakatipu is breathtaking. 🏔️",
+            isUser: true,
         },
         {
             id: 209,
-            url: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",
-            latitude: -37.7870, // Hamilton, New Zealand
+            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+            latitude: -37.787, // Hamilton, New Zealand
             longitude: 175.2793,
             date: "2024-07-02",
             location: "Hamilton, New Zealand",
-            description: "Waikato river walks and garden tours! Hidden gem in the North Island. 🌿",
-            isUser: true
+            description:
+                "Waikato river walks and garden tours! Hidden gem in the North Island. 🌿",
+            isUser: true,
         },
         {
             id: 210,
@@ -148,30 +197,32 @@ document.addEventListener("DOMContentLoaded", function () {
             longitude: 176.0834,
             date: "2024-07-08",
             location: "Taupo, New Zealand",
-            description: "Lake Taupo adventures! Perfect spot for relaxation and water sports. 🏊‍♂️",
-            isUser: true
+            description:
+                "Lake Taupo adventures! Perfect spot for relaxation and water sports. 🏊‍♂️",
+            isUser: true,
         },
         {
             id: 211,
             url: "images/alvin1.jpg", // Local image for demo
-            latitude: -36.934370, // Auckland, New Zealand
+            latitude: -36.93437, // Auckland, New Zealand
             longitude: 174.915984,
             date: "2020-07-08",
             location: "Botany Downs Secondary College",
-            description: "Significant memories during lock-down in high school! Recieved a trophy!",
-            isUser: true
+            description:
+                "Significant memories during lock-down in high school! Recieved a trophy!",
+            isUser: true,
         },
         {
             id: 212,
-            url: "images/alvin2.jpg", // Local image for demo   
-            latitude: -36.934370, // Auckland, New Zealand
+            url: "images/alvin2.jpg", // Local image for demo
+            latitude: -36.93437, // Auckland, New Zealand
             longitude: 174.915984,
             date: "2023-07-08",
             location: "Botany Downs Secondary College",
-            description: "Finally graduated from high school! So many memories with friends. Significant moment for me",
-            isUser: true
-        }
-
+            description:
+                "Finally graduated from high school! So many memories with friends. Significant moment for me",
+            isUser: true,
+        },
     ];
     // ==============================================================
     // PHOTO DATA
@@ -800,6 +851,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (currentFilter === "user") {
             // Show only user photos
             photosToShow = userPhotos;
+        } else if (currentFilter === "friends") {
+            // Show only friend photos
+            photosToShow = friendPhotos;
         } else {
             // Show only public photos (exclude user photos)
             photosToShow = mockPhotos.filter((photo) => !photo.isUser);
@@ -1656,6 +1710,33 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /**
+     * Fit map to show all friend stories
+     */
+    function fitMapToFriendStories() {
+        if (!map || friendPhotos.length === 0) return;
+
+        console.log("👥 Fitting map to show all friend stories");
+
+        // Create bounds from all friend photo locations
+        const group = new L.featureGroup();
+
+        friendPhotos.forEach((photo) => {
+            const marker = L.marker([photo.latitude, photo.longitude]);
+            group.addLayer(marker);
+        });
+
+        // Fit map to bounds with padding
+        map.fitBounds(group.getBounds(), {
+            padding: [20, 20],
+            animate: true,
+            duration: 2.0,
+        });
+
+        // Clean up temporary group
+        group.clearLayers();
+    }
+
+    /**
      * Handle geolocation errors
      */
     function onLocationError(error) {
@@ -1966,7 +2047,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log("🔄 Filter toggle clicked");
                 console.log("Current filter before toggle:", currentFilter);
 
-                // Toggle between all stories and user stories
+                // Toggle between all stories, user stories, and friend stories
                 if (currentFilter === "all") {
                     currentFilter = "user";
                     const toggleIcon = storiesToggle.querySelector(".toggle-icon");
@@ -1974,7 +2055,17 @@ document.addEventListener("DOMContentLoaded", function () {
                         toggleIcon.textContent = "👤";
                     }
                     storiesToggle.classList.add("user-mode");
+                    storiesToggle.classList.remove("friends-mode");
                     console.log("📱 Switched to user stories only");
+                } else if (currentFilter === "user") {
+                    currentFilter = "friends";
+                    const toggleIcon = storiesToggle.querySelector(".toggle-icon");
+                    if (toggleIcon) {
+                        toggleIcon.textContent = "👥";
+                    }
+                    storiesToggle.classList.remove("user-mode");
+                    storiesToggle.classList.add("friends-mode");
+                    console.log("👥 Switched to friend stories only");
                 } else {
                     currentFilter = "all";
                     const toggleIcon = storiesToggle.querySelector(".toggle-icon");
@@ -1982,6 +2073,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         toggleIcon.textContent = "📷";
                     }
                     storiesToggle.classList.remove("user-mode");
+                    storiesToggle.classList.remove("friends-mode");
                     console.log("🌍 Switched to all stories");
                 }
 
@@ -1997,6 +2089,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (currentFilter === "user" && userPhotos.length > 0) {
                     // Fit map to show all user stories globally
                     fitMapToUserStories();
+                } else if (currentFilter === "friends" && friendPhotos.length > 0) {
+                    // Fit map to show all friend stories
+                    fitMapToFriendStories();
                 } else {
                     // Return to Auckland view for public stories
                     map.setView([-36.8485, 174.7633], 12, {
@@ -2014,7 +2109,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 showToastMessage(
                     currentFilter === "user"
                         ? `📱 Showing your memories`
-                        : `🌍 Showing public memories`
+                        : currentFilter === "friends"
+                            ? `👥 Showing friend memories`
+                            : `🌍 Showing public memories`
                 );
             });
         } else {
@@ -2029,6 +2126,50 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
+        function switchToMapView() {
+            if (currentView !== "map") {
+                currentView = "map";
+                mapElement.parentElement.classList.remove("hidden");
+                timelineView.classList.add("hidden");
+
+                // Show search container for map view
+                if (searchContainer) {
+                    searchContainer.style.display = "flex";
+                }
+
+                // Update active states
+                document.getElementById("mapViewBtn").classList.add("active");
+                document.getElementById("timelineViewBtn").classList.remove("active");
+
+                // Refresh map if needed
+                if (map) {
+                    setTimeout(() => {
+                        map.invalidateSize();
+                    }, 100);
+                }
+                hidePhotoDetails();
+            }
+        }
+
+        function switchToTimelineView() {
+            if (currentView !== "timeline") {
+                currentView = "timeline";
+                mapElement.parentElement.classList.add("hidden");
+                timelineView.classList.remove("hidden");
+
+                // Hide search container for timeline view
+                if (searchContainer) {
+                    searchContainer.style.display = "none";
+                }
+
+                // Update active states
+                document.getElementById("timelineViewBtn").classList.add("active");
+                document.getElementById("mapViewBtn").classList.remove("active");
+
+                updateTimelineView();
+                hidePhotoDetails();
+            }
+        }
         // Community button
         const communityBtn = document.getElementById("communityBtn");
         if (communityBtn) {
@@ -2093,11 +2234,6 @@ document.addEventListener("DOMContentLoaded", function () {
             mapElement.parentElement.classList.remove("hidden");
             timelineView.classList.add("hidden");
 
-            // Show search container for map view
-            if (searchContainer) {
-                searchContainer.style.display = "flex";
-            }
-
             // Update active states
             document.getElementById("mapViewBtn").classList.add("active");
             document.getElementById("timelineViewBtn").classList.remove("active");
@@ -2117,11 +2253,6 @@ document.addEventListener("DOMContentLoaded", function () {
             currentView = "timeline";
             mapElement.parentElement.classList.add("hidden");
             timelineView.classList.remove("hidden");
-
-            // Hide search container for timeline view
-            if (searchContainer) {
-                searchContainer.style.display = "none";
-            }
 
             // Update active states
             document.getElementById("timelineViewBtn").classList.add("active");

@@ -452,6 +452,14 @@ body {
     background: #c0392b;
 }
 
+.stories-toggle-floating.friends-mode {
+  background: #9b59b6;
+}
+
+.stories-toggle-floating.friends-mode:hover {
+  background: #8e44ad;
+}
+
 /* Search bar styling */
 .search-container {
     position: fixed;
