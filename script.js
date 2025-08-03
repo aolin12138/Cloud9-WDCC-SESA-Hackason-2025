@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Search elements
     const searchInput = document.getElementById("searchInput");
     const searchBtn = document.getElementById("searchBtn");
+    const searchContainer = document.querySelector(".search-container");
 
     // Refresh button
     const refreshBtn = document.getElementById("refreshBtn");
@@ -111,18 +112,8 @@ document.addEventListener("DOMContentLoaded", function () {
             isUser: true
         },
         {
-            id: 206,
-            url: "https://images.unsplash.com/photo-1544550581-5d6d7e18d8fc?w=400&h=300&fit=crop",
-            latitude: -41.2924, // Wellington, New Zealand
-            longitude: 174.7787,
-            date: "2024-06-05",
-            location: "Wellington, New Zealand",
-            description: "Capital city vibes! Love the creative culture and harbor views. 🏛️",
-            isUser: true
-        },
-        {
             id: 207,
-            url: "https://images.unsplash.com/photo-1464822759831-99d1ad2ad4ac?w=400&h=300&fit=crop",
+            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
             latitude: -43.5321, // Christchurch, New Zealand
             longitude: 172.6362,
             date: "2024-06-12",
@@ -142,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         {
             id: 209,
-            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+            url: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",
             latitude: -37.7870, // Hamilton, New Zealand
             longitude: 175.2793,
             date: "2024-07-02",
@@ -172,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         {
             id: 212,
-            url: "images/alvin2.jpg", // Local image for demo
+            url: "images/alvin2.jpg", // Local image for demo   
             latitude: -36.934370, // Auckland, New Zealand
             longitude: 174.915984,
             date: "2023-07-08",
@@ -2102,6 +2093,11 @@ document.addEventListener("DOMContentLoaded", function () {
             mapElement.parentElement.classList.remove("hidden");
             timelineView.classList.add("hidden");
 
+            // Show search container for map view
+            if (searchContainer) {
+                searchContainer.style.display = "flex";
+            }
+
             // Update active states
             document.getElementById("mapViewBtn").classList.add("active");
             document.getElementById("timelineViewBtn").classList.remove("active");
@@ -2121,6 +2117,11 @@ document.addEventListener("DOMContentLoaded", function () {
             currentView = "timeline";
             mapElement.parentElement.classList.add("hidden");
             timelineView.classList.remove("hidden");
+
+            // Hide search container for timeline view
+            if (searchContainer) {
+                searchContainer.style.display = "none";
+            }
 
             // Update active states
             document.getElementById("timelineViewBtn").classList.add("active");
