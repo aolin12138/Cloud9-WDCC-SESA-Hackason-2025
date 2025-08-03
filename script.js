@@ -1270,3 +1270,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("🇳🇿 Memory Map initialized for Auckland! Ready for memories.");
 });
+
