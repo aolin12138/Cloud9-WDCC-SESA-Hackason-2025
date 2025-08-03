@@ -315,8 +315,8 @@ document.addEventListener("DOMContentLoaded", function () {
      * Add cluster marker for multiple photos
      */
     function addClusterMarker(cluster) {
-        // Sort photos by date (newest first)
-        cluster.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Sort photos by date (oldest first)
+        cluster.sort((a, b) => new Date(a.date) - new Date(b.date));
 
         // Calculate cluster center
         const centerLat =
@@ -430,8 +430,8 @@ document.addEventListener("DOMContentLoaded", function () {
      * Add cluster marker for multiple photos
      */
     function addClusterMarker(cluster) {
-        // Sort photos by date (newest first)
-        cluster.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Sort photos by date (oldest first)
+        cluster.sort((a, b) => new Date(a.date) - new Date(b.date));
 
         // Calculate cluster center
         const centerLat =
