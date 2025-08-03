@@ -37,15 +37,116 @@ document.addEventListener("DOMContentLoaded", function () {
     let clusterMarkers = []; // Clustered photo markers
     let markerLayer = null; // Layer group for all markers
     let currentView = "map"; // 'map' or 'timeline'
-    let photoIdCounter = 100; // Start from 100 for new photos
+    let photoIdCounter = 300; // Start from 300 for new photos (demo user photos use 201-205)
     let currentFilter = "all"; // 'all' or 'user' - tracks what stories to show
 
     // ==============================================================
     // PHOTO DATA
     // ==============================================================
 
-    // User's own photos (locally created)
-    const userPhotos = [];
+    // User's own photos (locally created) - scattered across different countries for travel theme
+    const userPhotos = [
+        {
+            id: 201,
+            url: "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=400&h=300&fit=crop",
+            latitude: 35.6762, // Tokyo, Japan
+            longitude: 139.6503,
+            date: "2024-06-10",
+            location: "Tokyo, Japan",
+            description: "Cherry blossoms in full bloom! Tokyo is absolutely magical in spring. 🌸",
+            isUser: true
+        },
+        {
+            id: 202,
+            url: "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&h=300&fit=crop",
+            latitude: 39.9042, // Beijing, China
+            longitude: 116.4074,
+            date: "2024-06-25",
+            location: "Beijing, China",
+            description: "The Great Wall of China - incredible history and breathtaking views! 🏯",
+            isUser: true
+        },
+        {
+            id: 203,
+            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+            latitude: -36.8485, // Auckland, New Zealand
+            longitude: 174.7633,
+            date: "2024-07-15",
+            location: "Auckland, New Zealand",
+            description: "Finally back home in Auckland! Nothing beats this harbor city. 🇳🇿",
+            isUser: true
+        },
+        {
+            id: 204,
+            url: "https://images.unsplash.com/photo-1549693578-d683be217e58?w=400&h=300&fit=crop",
+            latitude: 35.6895, // Osaka, Japan
+            longitude: 135.5023,
+            date: "2024-07-28",
+            location: "Osaka, Japan",
+            description: "Best takoyaki in Osaka! The food culture here is incredible. 🍜",
+            isUser: true
+        },
+        {
+            id: 205,
+            url: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop",
+            latitude: 22.3193, // Hong Kong
+            longitude: 114.1694,
+            date: "2024-08-01",
+            location: "Hong Kong",
+            description: "Victoria Harbor skyline at sunset - absolutely stunning! 🌅",
+            isUser: true
+        },
+        {
+            id: 206,
+            url: "https://images.unsplash.com/photo-1544550581-5d6d7e18d8fc?w=400&h=300&fit=crop",
+            latitude: -41.2924, // Wellington, New Zealand
+            longitude: 174.7787,
+            date: "2024-06-05",
+            location: "Wellington, New Zealand",
+            description: "Capital city vibes! Love the creative culture and harbor views. 🏛️",
+            isUser: true
+        },
+        {
+            id: 207,
+            url: "https://images.unsplash.com/photo-1464822759831-99d1ad2ad4ac?w=400&h=300&fit=crop",
+            latitude: -43.5321, // Christchurch, New Zealand
+            longitude: 172.6362,
+            date: "2024-06-12",
+            location: "Christchurch, New Zealand",
+            description: "Garden city charm! Recovery and resilience make this place special. 🌺",
+            isUser: true
+        },
+        {
+            id: 208,
+            url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=300&fit=crop",
+            latitude: -45.8788, // Queenstown, New Zealand
+            longitude: 170.5028,
+            date: "2024-06-18",
+            location: "Queenstown, New Zealand",
+            description: "Adventure capital of the world! Lake Wakatipu is breathtaking. 🏔️",
+            isUser: true
+        },
+        {
+            id: 209,
+            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+            latitude: -37.7870, // Hamilton, New Zealand
+            longitude: 175.2793,
+            date: "2024-07-02",
+            location: "Hamilton, New Zealand",
+            description: "Waikato river walks and garden tours! Hidden gem in the North Island. 🌿",
+            isUser: true
+        },
+        {
+            id: 210,
+            url: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=300&fit=crop",
+            latitude: -39.0579, // Taupo, New Zealand
+            longitude: 176.0834,
+            date: "2024-07-08",
+            location: "Taupo, New Zealand",
+            description: "Lake Taupo adventures! Perfect spot for relaxation and water sports. 🏊‍♂️",
+            isUser: true
+        }
+    ];
 
     // SET A: Adventure & Outdoor Explorer Group - More scattered around Auckland Central
     const demoPhotosSetA = [
@@ -482,7 +583,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Combined photo array - all photos including user's and demo photos
+    // Combined photo array - only demo photos (user photos shown separately)
     let mockPhotos = [...getCurrentDemoPhotos()];
 
     // ==============================================================
@@ -640,7 +741,11 @@ document.addEventListener("DOMContentLoaded", function () {
         // Filter photos based on current filter
         let photosToShow = mockPhotos;
         if (currentFilter === "user") {
+            // Show only user photos
             photosToShow = userPhotos;
+        } else {
+            // Show only public photos (exclude user photos)
+            photosToShow = mockPhotos.filter(photo => !photo.isUser);
         }
 
         console.log("Photos to show:", photosToShow.length);
@@ -863,13 +968,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateTimelineView() {
         timeline.innerHTML = "";
 
-        // Filter photos based on current filter
-        let photosToShow = mockPhotos;
-        if (currentFilter === "user") {
-            photosToShow = userPhotos;
-        }
+        // Timeline view always shows only user photos
+        const photosToShow = userPhotos;
 
-        // Show filtered photos in timeline view
+        // Show user photos in timeline view
         displayPhotosInTimeline(photosToShow);
     }
 
@@ -881,7 +983,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const noPhotosMsg = document.createElement("div");
             noPhotosMsg.className = "placeholder-message";
             noPhotosMsg.textContent =
-                "No memories yet. Click on the map to add your first memory! 🗺️";
+                "No personal memories yet. Click on the map to add your first memory! 🗺️";
             timeline.appendChild(noPhotosMsg);
             return;
         }
@@ -1053,12 +1155,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Add to user photos array
         userPhotos.push(newPhoto);
 
-        // Add to combined photos array
-        mockPhotos.push(newPhoto);
-
         console.log("📸 Photo added successfully!");
         console.log("userPhotos now has:", userPhotos.length, "photos");
-        console.log("mockPhotos now has:", mockPhotos.length, "photos");
 
         // Update user photo count in sidebar
         updateUserPhotoCount();
@@ -1327,6 +1425,33 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /**
+     * Fit map to show all user stories globally
+     */
+    function fitMapToUserStories() {
+        if (!map || userPhotos.length === 0) return;
+
+        console.log("🌍 Fitting map to show all user stories globally");
+
+        // Create bounds from all user photo locations
+        const group = new L.featureGroup();
+
+        userPhotos.forEach(photo => {
+            const marker = L.marker([photo.latitude, photo.longitude]);
+            group.addLayer(marker);
+        });
+
+        // Fit map to bounds with padding
+        map.fitBounds(group.getBounds(), {
+            padding: [20, 20],
+            animate: true,
+            duration: 2.0
+        });
+
+        // Clean up temporary group
+        group.clearLayers();
+    }
+
+    /**
      * Handle geolocation errors
      */
     function onLocationError(error) {
@@ -1509,7 +1634,7 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             (error) => {
                 console.error("❌ Find Me location error:", error);
-                ("❌ Could not get precise location. Try again.");
+                showToastMessage("❌ Could not get precise location. Try again.");
                 findMeBtn.textContent = "📍";
                 findMeBtn.disabled = false;
             },
@@ -1554,7 +1679,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Find Me button
     if (findMeBtn) {
-        findMeBtn.addEventListener("click", getCurrentLocation);
+        console.log("✅ Find Me button found, adding event listener");
+        findMeBtn.addEventListener("click", function () {
+            console.log("🔍 Find Me button clicked!");
+            getCurrentLocation();
+        });
+    } else {
+        console.error("❌ Find Me button not found!");
     }
 
     // Search functionality
@@ -1604,9 +1735,9 @@ document.addEventListener("DOMContentLoaded", function () {
         photoMarkers = [];
         clusterMarkers = [];
 
-        // Update mockPhotos with new data set
-        mockPhotos = [...userPhotos, ...getCurrentDemoPhotos()];
-        console.log(`📱 Loaded ${mockPhotos.length} photos from set ${currentDataSet}`);
+        // Update mockPhotos with new data set (only demo photos, user photos handled separately)
+        mockPhotos = [...getCurrentDemoPhotos()];
+        console.log(`📱 Loaded ${mockPhotos.length} public photos from set ${currentDataSet}`);
 
         // Re-add markers for new data set
         setTimeout(() => {
@@ -1633,6 +1764,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Enhanced sidebar navigation
     setupSidebarNavigation();
+
+    // Initialize user photo count in sidebar
+    updateUserPhotoCount();
 
     function setupSidebarNavigation() {
         // Stories toggle functionality
@@ -1662,6 +1796,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // Update map markers immediately
                 addClusteredPhotoMarkers();
+
+                // Adjust map view based on filter
+                if (currentFilter === "user" && userPhotos.length > 0) {
+                    // Fit map to show all user stories globally
+                    fitMapToUserStories();
+                } else {
+                    // Return to Auckland view for public stories
+                    map.setView([-36.8485, 174.7633], 12, {
+                        animate: true,
+                        duration: 1.5
+                    });
+                }
 
                 // Update timeline if in timeline view
                 if (currentView === "timeline") {
