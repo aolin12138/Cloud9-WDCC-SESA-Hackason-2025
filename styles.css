@@ -795,6 +795,57 @@ body {
     min-height: 60px;
 }
 
+/* Checkbox styling for better alignment */
+.form-group input[type="checkbox"] {
+    width: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    margin-right: 8px;
+    vertical-align: baseline;
+    position: relative;
+    top: 1px;
+}
+
+/* File input styling */
+.form-group input[type="file"] {
+    padding: 8px;
+    border: 2px dashed #bdc3c7;
+    border-radius: 6px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: #4ecdc4;
+    background: #ecf0f1;
+}
+
+.form-group input[type="file"]:focus {
+    outline: none;
+    border-color: #4ecdc4;
+    background: #ffffff;
+    border-style: solid;
+}
+
+.file-info {
+    font-size: 8px;
+    margin-top: 5px;
+    padding: 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.form-group label:has(input[type="checkbox"]),
+.form-group label[for="photoPublic"] {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    text-transform: none;
+    font-size: 8px;
+}
+
 .form-buttons {
     display: flex;
     gap: 10px;
