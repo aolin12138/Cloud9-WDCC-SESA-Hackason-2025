@@ -28,15 +28,54 @@ document.addEventListener("DOMContentLoaded", function () {
     let userLocation = null;
     let photoMarkers = []; // Individual photo markers
     let clusterMarkers = []; // Clustered photo markers
+    let markerLayer = null; // Layer group for all markers
     let currentView = "map"; // 'map' or 'timeline'
     let photoIdCounter = 100; // Start from 100 for new photos
+    let currentFilter = "all"; // 'all' or 'user' - tracks what stories to show
 
     // ==============================================================
     // PHOTO DATA
     // ==============================================================
 
-    // Empty photo data - users will add their own memories
-    const mockPhotos = [];
+    // User's own photos (locally created)
+    const userPhotos = [];
+
+    // Demo photos from other users for the demo
+    const demoPhotos = [
+        {
+            id: 1,
+            url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+            latitude: -36.8485,
+            longitude: 174.7633,
+            date: "2024-12-15",
+            location: "Auckland Harbour Bridge",
+            description: "Amazing sunset view from the harbour! Perfect evening with friends.",
+            isUser: false
+        },
+        {
+            id: 2,
+            url: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop",
+            latitude: -36.8440,
+            longitude: 174.7680,
+            date: "2024-12-10",
+            location: "Sky Tower",
+            description: "Christmas lights looking spectacular from up here! Auckland looks magical.",
+            isUser: false
+        },
+        {
+            id: 3,
+            url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop",
+            latitude: -36.8570,
+            longitude: 174.7430,
+            date: "2024-12-08",
+            location: "Viaduct Harbour",
+            description: "Coffee morning with the best harbor views. Love this spot!",
+            isUser: false
+        }
+    ];
+
+    // Combined photo array - all photos including user's and demo photos
+    let mockPhotos = [...demoPhotos];
 
     // ==============================================================
     // MAP INITIALIZATION AND MANAGEMENT
@@ -83,6 +122,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Add custom styling to map
         map.getContainer().style.filter = "sepia(20%) saturate(0.9) contrast(1.1)";
+
+        // Create marker layer group
+        markerLayer = L.layerGroup().addTo(map);
 
         // Add click event to map for adding new photos
         map.on("click", onMapClick);
@@ -152,114 +194,35 @@ document.addEventListener("DOMContentLoaded", function () {
      * Add clustered photo markers to map
      */
     function addClusteredPhotoMarkers() {
-        // Clear existing markers
-        photoMarkers.forEach(({ marker }) => {
-            if (map.hasLayer(marker)) {
-                map.removeLayer(marker);
-            }
-        });
-        photoMarkers = [];
+        console.log("🔄 Refreshing markers...");
+        console.log("Current filter:", currentFilter);
+        console.log("mockPhotos length:", mockPhotos.length);
+        console.log("userPhotos length:", userPhotos.length);
 
-        clusterMarkers.forEach(({ marker }) => {
-            if (map.hasLayer(marker)) {
-                map.removeLayer(marker);
-            }
-        });
-        clusterMarkers = [];
-
-        // Group photos by proximity
-        const clusters = groupPhotosByProximity(mockPhotos);
-
-        clusters.forEach((cluster) => {
-            if (cluster.length === 1) {
-                // Single photo - add individual marker
-                addIndividualPhotoMarker(cluster[0]);
-            } else {
-                // Multiple photos - add cluster marker
-                addClusterMarker(cluster);
-            }
-        });
-    }
-
-    /**
-     * Calculate distance between two coordinates in meters using Haversine formula
-     */
-    function calculateDistanceInMeters(lat1, lon1, lat2, lon2) {
-        const R = 6371e3; // Earth's radius in meters
-        const φ1 = (lat1 * Math.PI) / 180;
-        const φ2 = (lat2 * Math.PI) / 180;
-        const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-        const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-        const a =
-            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c;
-    }
-
-    /**
-     * Group photos by proximity (within 30 meters)
-     */
-    function groupPhotosByProximity(photos) {
-        if (photos.length === 0) return [];
-
-        const clusters = [];
-        const processed = new Set();
-
-        for (let i = 0; i < photos.length; i++) {
-            if (processed.has(i)) continue;
-
-            const cluster = [photos[i]];
-            processed.add(i);
-
-            for (let j = i + 1; j < photos.length; j++) {
-                if (processed.has(j)) continue;
-
-                const distance = calculateDistanceInMeters(
-                    photos[i].latitude,
-                    photos[i].longitude,
-                    photos[j].latitude,
-                    photos[j].longitude
-                );
-
-                if (distance <= 30) {
-                    // 30 meters threshold
-                    cluster.push(photos[j]);
-                    processed.add(j);
-                }
-            }
-
-            clusters.push(cluster);
+        // Clear existing markers from layer group
+        if (markerLayer) {
+            markerLayer.clearLayers();
         }
 
-        return clusters;
-    }
-
-    /**
-     * Add clustered photo markers to map
-     */
-    function addClusteredPhotoMarkers() {
-        // Clear existing markers
-        photoMarkers.forEach(({ marker }) => {
-            if (map.hasLayer(marker)) {
-                map.removeLayer(marker);
-            }
-        });
+        // Clear existing marker arrays (but don't remove from map since layer group handles that)
         photoMarkers = [];
-
-        clusterMarkers.forEach(({ marker }) => {
-            if (map.hasLayer(marker)) {
-                map.removeLayer(marker);
-            }
-        });
         clusterMarkers = [];
 
-        // Group photos by proximity
-        const clusters = groupPhotosByProximity(mockPhotos);
+        // Filter photos based on current filter
+        let photosToShow = mockPhotos;
+        if (currentFilter === "user") {
+            photosToShow = userPhotos;
+        }
 
-        clusters.forEach((cluster) => {
+        console.log("Photos to show:", photosToShow.length);
+        console.log("Photos to show details:", photosToShow.map(p => ({ id: p.id, location: p.location, isUser: p.isUser })));
+
+        // Group photos by proximity
+        const clusters = groupPhotosByProximity(photosToShow);
+        console.log("Clusters created:", clusters.length);
+
+        clusters.forEach((cluster, index) => {
+            console.log(`Adding cluster ${index} with ${cluster.length} photos`);
             if (cluster.length === 1) {
                 // Single photo - add individual marker
                 addIndividualPhotoMarker(cluster[0]);
@@ -268,12 +231,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 addClusterMarker(cluster);
             }
         });
+
+        // Force map to redraw/invalidate to make markers visible
+        setTimeout(() => {
+            if (map) {
+                console.log("🔄 Forcing map invalidation to show markers");
+                map.invalidateSize();
+                // Also try to trigger a redraw
+                map._onResize();
+            }
+        }, 50);
+
+        console.log("✅ Markers refresh complete");
     }
 
     /**
      * Add individual photo marker to map
      */
     function addIndividualPhotoMarker(photo) {
+        console.log(`📍 Adding individual marker for photo ${photo.id} at ${photo.latitude}, ${photo.longitude}`);
+
         // Create custom icon for individual photo
         const photoIcon = L.divIcon({
             html: `<div class="photo-marker" data-photo="${photo.id}">📸</div>`,
@@ -283,24 +260,24 @@ document.addEventListener("DOMContentLoaded", function () {
             popupAnchor: [0, -15],
         });
 
-        // Create marker with custom icon
+        // Create marker with custom icon and add to layer group
         const marker = L.marker([photo.latitude, photo.longitude], {
             icon: photoIcon,
             title: photo.location,
-        }).addTo(map);
+        });
 
-        // Add entrance animation
+        // Add to marker layer group instead of directly to map
+        markerLayer.addLayer(marker);
+        console.log(`📍 Marker actually added to layer group for photo ${photo.id}`);
+
+        // No animation - just show immediately
         const markerElement = marker.getElement();
         if (markerElement) {
-            markerElement.style.opacity = "0";
-            markerElement.style.transform = "scale(0)";
-            markerElement.style.transition =
-                "all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
-
-            setTimeout(() => {
-                markerElement.style.opacity = "1";
-                markerElement.style.transform = "scale(1)";
-            }, 100);
+            markerElement.style.opacity = "1";
+            markerElement.style.transform = "scale(1)";
+            console.log(`✨ Marker element styled for photo ${photo.id}`);
+        } else {
+            console.log(`⚠️ No marker element found for photo ${photo.id}`);
         }
 
         // Add click event to show photo details
@@ -309,13 +286,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         photoMarkers.push({ marker, photo });
+        console.log(`✅ Individual marker added for photo ${photo.id}`);
     }
 
     /**
      * Add cluster marker for multiple photos
      */
     function addClusterMarker(cluster) {
-        // Sort photos by date (oldest first)
+        console.log(`📍 Adding cluster marker with ${cluster.length} photos`);
+
+        // Sort photos by date (newest first)
         cluster.sort((a, b) => new Date(a.date) - new Date(b.date));
 
         // Calculate cluster center
@@ -323,6 +303,8 @@ document.addEventListener("DOMContentLoaded", function () {
             cluster.reduce((sum, photo) => sum + photo.latitude, 0) / cluster.length;
         const centerLng =
             cluster.reduce((sum, photo) => sum + photo.longitude, 0) / cluster.length;
+
+        console.log(`📍 Cluster center: ${centerLat}, ${centerLng}`);
 
         // Create custom icon for cluster
         const clusterIcon = L.divIcon({
@@ -336,24 +318,20 @@ document.addEventListener("DOMContentLoaded", function () {
             popupAnchor: [0, -20],
         });
 
-        // Create marker with custom icon
+        // Create marker with custom icon and add to layer group
         const marker = L.marker([centerLat, centerLng], {
             icon: clusterIcon,
             title: `${cluster.length} photos at ${cluster[0].location}`,
-        }).addTo(map);
+        });
 
-        // Add entrance animation
+        // Add to marker layer group instead of directly to map
+        markerLayer.addLayer(marker);
+
+        // No animation - just show immediately
         const markerElement = marker.getElement();
         if (markerElement) {
-            markerElement.style.opacity = "0";
-            markerElement.style.transform = "scale(0)";
-            markerElement.style.transition =
-                "all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
-
-            setTimeout(() => {
-                markerElement.style.opacity = "1";
-                markerElement.style.transform = "scale(1)";
-            }, 100);
+            markerElement.style.opacity = "1";
+            markerElement.style.transform = "scale(1)";
         }
 
         // Add click event to show cluster details
@@ -362,121 +340,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         clusterMarkers.push({ marker, cluster });
-    }
-
-    /**
-     * Show cluster details with carousel navigation
-     */
-    function showClusterDetails(photos) {
-        let currentIndex = 0; // Start with newest photo
-
-        function updateCarousel() {
-            const photo = photos[currentIndex];
-            const timeAgo = getTimeAgo(photo.date);
-            const polaroidHTML = `
-        <div class="cluster-header">
-          <h3>📸 ${photos.length} Photos at ${photo.location}</h3>
-          <p>Photo ${currentIndex + 1} of ${photos.length}</p>
-        </div>
-        <div class="panel-polaroid">
-          <img src="${photo.url}" alt="${photo.description}" />
-          <div class="panel-metadata">
-            <div class="panel-date">${photo.date}</div>
-            <div class="panel-time-ago" style="font-size: 6px; color: #7f8c8d; margin-top: 3px;">⏰ ${timeAgo}</div>
-            <div class="panel-location">${photo.location}</div>
-            <div style="margin-top: 10px; font-size: 7px; color: #34495e; line-height: 1.3;">
-              ${photo.description}
-            </div>
-          </div>
-        </div>
-        <div class="carousel-controls">
-          <button class="carousel-btn prev-btn" ${currentIndex === 0 ? "disabled" : ""
-                }>◀ Previous</button>
-          <button class="carousel-btn next-btn" ${currentIndex === photos.length - 1 ? "disabled" : ""
-                }>Next ▶</button>
-        </div>
-      `;
-
-            panelContent.innerHTML = polaroidHTML;
-            infoPanel.classList.remove("hidden");
-
-            // Add event listeners for navigation buttons
-            const prevBtn = document.querySelector(".prev-btn");
-            const nextBtn = document.querySelector(".next-btn");
-
-            if (prevBtn) {
-                prevBtn.addEventListener("click", () => {
-                    if (currentIndex > 0) {
-                        currentIndex--;
-                        updateCarousel();
-                    }
-                });
-            }
-
-            if (nextBtn) {
-                nextBtn.addEventListener("click", () => {
-                    if (currentIndex < photos.length - 1) {
-                        currentIndex++;
-                        updateCarousel();
-                    }
-                });
-            }
-        }
-
-        updateCarousel();
-    }
-
-    /**
-     * Add cluster marker for multiple photos
-     */
-    function addClusterMarker(cluster) {
-        // Sort photos by date (oldest first)
-        cluster.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        // Calculate cluster center
-        const centerLat =
-            cluster.reduce((sum, photo) => sum + photo.latitude, 0) / cluster.length;
-        const centerLng =
-            cluster.reduce((sum, photo) => sum + photo.longitude, 0) / cluster.length;
-
-        // Create custom icon for cluster
-        const clusterIcon = L.divIcon({
-            html: `<div class="cluster-marker">
-                <span class="cluster-count">${cluster.length}</span>
-                📸
-              </div>`,
-            className: "custom-cluster-marker",
-            iconSize: [40, 40],
-            iconAnchor: [20, 20],
-            popupAnchor: [0, -20],
-        });
-
-        // Create marker with custom icon
-        const marker = L.marker([centerLat, centerLng], {
-            icon: clusterIcon,
-            title: `${cluster.length} photos at ${cluster[0].location}`,
-        }).addTo(map);
-
-        // Add entrance animation
-        const markerElement = marker.getElement();
-        if (markerElement) {
-            markerElement.style.opacity = "0";
-            markerElement.style.transform = "scale(0)";
-            markerElement.style.transition =
-                "all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
-
-            setTimeout(() => {
-                markerElement.style.opacity = "1";
-                markerElement.style.transform = "scale(1)";
-            }, 100);
-        }
-
-        // Add click event to show cluster details
-        marker.on("click", () => {
-            showClusterDetails(cluster);
-        });
-
-        clusterMarkers.push({ marker, cluster });
+        console.log(`✅ Cluster marker added with ${cluster.length} photos`);
     }
 
     /**
@@ -559,8 +423,14 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateTimelineView() {
         timeline.innerHTML = "";
 
-        // Show all photos in timeline view
-        displayPhotosInTimeline(mockPhotos);
+        // Filter photos based on current filter
+        let photosToShow = mockPhotos;
+        if (currentFilter === "user") {
+            photosToShow = userPhotos;
+        }
+
+        // Show filtered photos in timeline view
+        displayPhotosInTimeline(photosToShow);
     }
 
     /**
@@ -734,23 +604,39 @@ document.addEventListener("DOMContentLoaded", function () {
             location: location,
             description: description,
             file: file, // Store the file object for potential future use
+            isUser: true // Mark as user's photo
         };
 
-        // Add to photos array
+        // Add to user photos array
+        userPhotos.push(newPhoto);
+
+        // Add to combined photos array
         mockPhotos.push(newPhoto);
 
-        // Update clustered markers on map
+        console.log("📸 Photo added successfully!");
+        console.log("userPhotos now has:", userPhotos.length, "photos");
+        console.log("mockPhotos now has:", mockPhotos.length, "photos");
+
+        // Update user photo count in sidebar
+        updateUserPhotoCount();
+
+        // Update clustered markers on map immediately
         addClusteredPhotoMarkers();
 
         // Hide form and show success message
         hidePhotoDetails();
+
+        // Show success message
+        setTimeout(() => {
+            alert("📸 Memory added successfully! Click 'Your Stories' to see only your memories.");
+        }, 500);
 
         // Refresh timeline view if active
         if (currentView === "timeline") {
             updateTimelineView();
         }
 
-        console.log("📸 New photo added:", newPhoto);
+        console.log("📸 New user photo added:", newPhoto);
     }
 
     /**
@@ -778,7 +664,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const now = new Date();
         const photoDate = new Date(dateString);
         const diffInMs = now - photoDate;
-        
+
         // Convert to different time units
         const diffInSeconds = Math.floor(diffInMs / 1000);
         const diffInMinutes = Math.floor(diffInSeconds / 60);
@@ -811,11 +697,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function isValidPhotoDate(dateString) {
         const photoDate = new Date(dateString);
         const today = new Date();
-        
+
         // Set both dates to start of day for fair comparison
         photoDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
-        
+
         return photoDate <= today;
     }
 
@@ -1198,6 +1084,179 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Enhanced sidebar navigation
+    setupSidebarNavigation();
+
+    function setupSidebarNavigation() {
+        // Stories toggle functionality
+        const storiesToggle = document.getElementById('storiesToggle');
+        if (storiesToggle) {
+            storiesToggle.addEventListener("click", function () {
+                console.log("🔄 Filter toggle clicked");
+                console.log("Current filter before toggle:", currentFilter);
+
+                // Toggle between all stories and user stories
+                if (currentFilter === "all") {
+                    currentFilter = "user";
+                    storiesToggle.querySelector('.nav-icon').textContent = "👤";
+                    storiesToggle.querySelector('.nav-text').textContent = "Your Stories";
+                    console.log("📱 Switched to user stories only");
+                } else {
+                    currentFilter = "all";
+                    storiesToggle.querySelector('.nav-icon').textContent = "📷";
+                    storiesToggle.querySelector('.nav-text').textContent = "All Stories";
+                    console.log("🌍 Switched to all stories");
+                }
+
+                console.log("New filter:", currentFilter);
+
+                // Update user photo count
+                updateUserPhotoCount();
+
+                // Update map markers immediately
+                addClusteredPhotoMarkers();
+
+                // Update timeline if in timeline view
+                if (currentView === "timeline") {
+                    updateTimelineView();
+                }
+
+                // Show helpful message
+                showToastMessage(currentFilter === "user" ?
+                    `📱 Showing only your stories (${userPhotos.length} memories)` :
+                    `🌍 Showing all stories (${mockPhotos.length} memories)`);
+            });
+        }
+
+        // Profile button
+        const profileBtn = document.getElementById('profileBtn');
+        if (profileBtn) {
+            profileBtn.addEventListener("click", function () {
+                showToastMessage("👤 Profile feature coming soon!");
+            });
+        }
+
+        // Community button
+        const communityBtn = document.getElementById('communityBtn');
+        if (communityBtn) {
+            communityBtn.addEventListener("click", function () {
+                showToastMessage("🌍 Community features coming soon!");
+            });
+        }
+
+        // Friends button
+        const friendsBtn = document.getElementById('friendsBtn');
+        if (friendsBtn) {
+            friendsBtn.addEventListener("click", function () {
+                showToastMessage("👥 Friends feature coming soon!");
+            });
+        }
+
+        // Map View button
+        const mapViewBtn = document.getElementById('mapViewBtn');
+        if (mapViewBtn) {
+            mapViewBtn.addEventListener("click", function () {
+                switchToMapView();
+            });
+        }
+
+        // Timeline View button
+        const timelineViewBtn = document.getElementById('timelineViewBtn');
+        if (timelineViewBtn) {
+            timelineViewBtn.addEventListener("click", function () {
+                switchToTimelineView();
+            });
+        }
+
+        // Settings button
+        const settingsBtn = document.getElementById('settingsBtn');
+        if (settingsBtn) {
+            settingsBtn.addEventListener("click", function () {
+                showToastMessage("⚙️ Settings feature coming soon!");
+            });
+        }
+
+        // Help button
+        const helpBtn = document.getElementById('helpBtn');
+        if (helpBtn) {
+            helpBtn.addEventListener("click", function () {
+                showToastMessage("❓ Help: Click on map to add memories, use sidebar to filter!");
+            });
+        }
+    }
+
+    function updateUserPhotoCount() {
+        const userPhotoCountElement = document.getElementById('userPhotoCount');
+        if (userPhotoCountElement) {
+            userPhotoCountElement.textContent = userPhotos.length;
+        }
+    }
+
+    function switchToMapView() {
+        if (currentView !== "map") {
+            currentView = "map";
+            mapElement.parentElement.classList.remove("hidden");
+            timelineView.classList.add("hidden");
+
+            // Update active states
+            document.getElementById('mapViewBtn').classList.add('active');
+            document.getElementById('timelineViewBtn').classList.remove('active');
+
+            // Refresh map if needed
+            if (map) {
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 100);
+            }
+            hidePhotoDetails();
+        }
+    }
+
+    function switchToTimelineView() {
+        if (currentView !== "timeline") {
+            currentView = "timeline";
+            mapElement.parentElement.classList.add("hidden");
+            timelineView.classList.remove("hidden");
+
+            // Update active states
+            document.getElementById('timelineViewBtn').classList.add('active');
+            document.getElementById('mapViewBtn').classList.remove('active');
+
+            updateTimelineView();
+            hidePhotoDetails();
+        }
+    }
+
+    function showToastMessage(message) {
+        // Create a temporary toast message
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 10000;
+            transition: opacity 0.3s;
+            font-family: 'Press Start 2P', monospace;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
+            }, 300);
+        }, 2000);
+    }
+
     // Toggle View button (if it exists)
     if (toggleViewBtn) {
         toggleViewBtn.addEventListener("click", toggleView);
@@ -1246,8 +1305,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize the map (but it will be invisible until main app shows)
     initializeMap();
 
-    // Initialize clustered photo markers
+    // Initialize clustered photo markers with demo photos
     addClusteredPhotoMarkers();
+
+    // Initialize sidebar state
+    updateUserPhotoCount();
+    document.getElementById('mapViewBtn').classList.add('active');
 
     // Force map to fill properly after initialization
     setTimeout(() => {

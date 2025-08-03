@@ -143,12 +143,12 @@ body {
     transition: width 0.3s ease;
     display: flex;
     flex-direction: column;
-    align-items: center;
     padding-top: 15px;
+    overflow: hidden;
 }
 
 .left-sidebar.sidebar-expanded {
-    width: 180px;
+    width: 200px;
     /* Expanded width */
 }
 
@@ -161,7 +161,7 @@ body {
     color: white;
     font-size: 16px;
     cursor: pointer;
-    margin-bottom: 20px;
+    margin: 0 auto 20px auto;
     transition: all 0.2s ease;
     font-family: 'Press Start 2P', monospace;
 }
@@ -171,6 +171,140 @@ body {
     transform: scale(1.05);
 }
 
+/* User Profile Section */
+.user-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 107, 157, 0.2);
+}
+
+.profile-avatar {
+    margin-bottom: 10px;
+}
+
+.avatar-icon {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff6b9d, #c471ed);
+    border-radius: 50%;
+    color: white;
+}
+
+.profile-info {
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.profile-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.profile-stats {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #7f8c8d;
+}
+
+.left-sidebar.sidebar-expanded .profile-info {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Navigation */
+.sidebar-nav {
+    flex: 1;
+    width: 100%;
+    padding: 0 10px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 8px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-item:hover {
+    background: rgba(255, 107, 157, 0.1);
+    transform: translateX(2px);
+}
+
+.nav-item.active {
+    background: rgba(255, 107, 157, 0.2);
+    box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+}
+
+.nav-icon {
+    font-size: 16px;
+    width: 24px;
+    text-align: center;
+    min-width: 24px;
+}
+
+.nav-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #2c3e50;
+    margin-left: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.nav-badge {
+    background: #ff6b9d;
+    color: white;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.left-sidebar.sidebar-expanded .nav-text,
+.left-sidebar.sidebar-expanded .nav-badge {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Bottom Section */
+.sidebar-bottom {
+    padding: 0 10px 20px 10px;
+    border-top: 1px solid rgba(255, 107, 157, 0.2);
+    padding-top: 20px;
+}
+
+/* Special styling for stories toggle */
+.stories-toggle {
+    background: rgba(255, 107, 157, 0.15);
+    border: 2px solid rgba(255, 107, 157, 0.3);
+}
+
+.stories-toggle:hover {
+    background: rgba(255, 107, 157, 0.25);
+}
+
+/* Legacy styles for compatibility */
 .sidebar-logo {
     margin-bottom: 20px;
 }
@@ -793,57 +927,6 @@ body {
 .form-group textarea {
     resize: vertical;
     min-height: 60px;
-}
-
-/* Checkbox styling for better alignment */
-.form-group input[type="checkbox"] {
-    width: auto;
-    padding: 0;
-    border: none;
-    background: transparent;
-    margin-right: 8px;
-    vertical-align: baseline;
-    position: relative;
-    top: 1px;
-}
-
-/* File input styling */
-.form-group input[type="file"] {
-    padding: 8px;
-    border: 2px dashed #bdc3c7;
-    border-radius: 6px;
-    background: #f8f9fa;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.form-group input[type="file"]:hover {
-    border-color: #4ecdc4;
-    background: #ecf0f1;
-}
-
-.form-group input[type="file"]:focus {
-    outline: none;
-    border-color: #4ecdc4;
-    background: #ffffff;
-    border-style: solid;
-}
-
-.file-info {
-    font-size: 8px;
-    margin-top: 5px;
-    padding: 5px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.7);
-}
-
-.form-group label:has(input[type="checkbox"]),
-.form-group label[for="photoPublic"] {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    text-transform: none;
-    font-size: 8px;
 }
 
 .form-buttons {
