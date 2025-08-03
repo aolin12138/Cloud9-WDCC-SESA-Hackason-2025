@@ -39,13 +39,73 @@
                 ☰
             </button>
 
-            <!-- Simple logo -->
-            <div class="sidebar-logo">
-                <div class="logo-icon">📷</div>
+            <!-- User profile section -->
+            <div class="sidebar-section user-profile">
+                <div class="profile-avatar">
+                    <div class="avatar-icon">👤</div>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-name">Explorer</div>
+                    <div class="profile-stats">
+                        <span id="userPhotoCount">0</span> memories
+                    </div>
+                </div>
             </div>
 
-            <!-- Text that shows when expanded -->
-            <div class="sidebar-text">Your Stories</div>
+            <!-- Main navigation -->
+            <nav class="sidebar-nav">
+                <!-- Stories toggle -->
+                <div class="nav-item stories-toggle" id="storiesToggle">
+                    <div class="nav-icon">📷</div>
+                    <span class="nav-text">All Stories</span>
+                </div>
+
+                <!-- Your Profile -->
+                <div class="nav-item" id="profileBtn">
+                    <div class="nav-icon">�</div>
+                    <span class="nav-text">Your Profile</span>
+                </div>
+
+                <!-- Community -->
+                <div class="nav-item" id="communityBtn">
+                    <div class="nav-icon">🌍</div>
+                    <span class="nav-text">Community</span>
+                </div>
+
+                <!-- Friends -->
+                <div class="nav-item" id="friendsBtn">
+                    <div class="nav-icon">👥</div>
+                    <span class="nav-text">Friends</span>
+                    <div class="nav-badge">3</div>
+                </div>
+
+                <!-- Map View -->
+                <div class="nav-item" id="mapViewBtn">
+                    <div class="nav-icon">🗺️</div>
+                    <span class="nav-text">Map View</span>
+                </div>
+
+                <!-- Timeline View -->
+                <div class="nav-item" id="timelineViewBtn">
+                    <div class="nav-icon">📋</div>
+                    <span class="nav-text">Timeline</span>
+                </div>
+            </nav>
+
+            <!-- Bottom section -->
+            <div class="sidebar-bottom">
+                <!-- Settings -->
+                <div class="nav-item" id="settingsBtn">
+                    <div class="nav-icon">⚙️</div>
+                    <span class="nav-text">Settings</span>
+                </div>
+
+                <!-- Help -->
+                <div class="nav-item" id="helpBtn">
+                    <div class="nav-icon">❓</div>
+                    <span class="nav-text">Help</span>
+                </div>
+            </div>
         </aside>
 
         <!-- Find Me button - bottom right floating -->
